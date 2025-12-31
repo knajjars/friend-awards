@@ -207,9 +207,8 @@ function LobbyCard({
 
   return (
     <div
-      className={`glass-card cursor-pointer p-4 transition-all duration-300 active:scale-[0.99] sm:p-6 ${
-        isSelected ? "bg-navy-800/70 ring-2 ring-gold-400/50" : ""
-      }`}
+      className={`glass-card cursor-pointer p-4 transition-all duration-300 sm:p-6 ${isSelected ? "bg-navy-800/70 ring-2 ring-gold-400/50" : "hover:bg-navy-800/30"
+        }`}
       onClick={onSelect}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
@@ -221,12 +220,12 @@ function LobbyCard({
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button
               onClick={copyShareCode}
-              className="group inline-flex items-center gap-2 rounded-lg border border-navy-600 bg-navy-900/80 px-3 py-2 transition-colors active:bg-navy-800 sm:py-1.5"
+              className="group inline-flex items-center gap-2 rounded-lg border border-navy-600 bg-navy-900/80 px-3 py-2 transition-all active:scale-95 active:bg-navy-800 sm:py-1.5 sm:hover:border-gold-400/30"
             >
               <span className="font-mono text-sm tracking-wider text-gold-400 sm:text-base">
                 {lobby.shareCode}
               </span>
-              <Copy className="h-4 w-4 text-slate-500 transition-colors group-hover:text-gold-400" />
+              <Copy className="h-4 w-4 text-slate-500 transition-colors group-hover:text-gold-400 group-active:text-gold-400" />
             </button>
 
             {lobby.isVotingOpen ? (
@@ -245,14 +244,15 @@ function LobbyCard({
           </div>
         </div>
 
-        <div className="flex gap-2 self-stretch border-t border-navy-700/50 pt-3 sm:self-start sm:border-0 sm:pt-0">
+        {/* Actions - separated with more spacing */}
+        <div className="flex items-center gap-2 self-stretch border-t border-navy-700/50 pt-3 sm:gap-3 sm:self-start sm:border-0 sm:pt-0">
           {lobby.isPresentationMode && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onViewPresentation();
               }}
-              className="btn-primary flex-1 py-2.5 text-sm sm:flex-none sm:py-2"
+              className="btn-primary flex-1 py-2.5 text-sm transition-transform active:scale-95 sm:flex-none sm:py-2"
             >
               View Show
             </button>
@@ -262,20 +262,24 @@ function LobbyCard({
               e.stopPropagation();
               onSelect();
             }}
-            className="btn-secondary flex-1 py-2.5 text-sm sm:flex-none sm:py-2"
+            className="btn-secondary flex-1 py-2.5 text-sm transition-transform active:scale-95 sm:flex-none sm:py-2"
           >
             {isSelected ? "Collapse" : "Manage"}
           </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-            className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition-all active:bg-red-500/20 sm:h-auto sm:w-auto sm:p-2 sm:hover:bg-red-500/10 sm:hover:text-red-400"
-            title="Delete lobby"
-          >
-            <Trash2 className="h-5 w-5" />
-          </button>
+
+          {/* Delete button - separated with a divider on mobile */}
+          <div className="ml-1 flex items-center border-l border-navy-700/50 pl-2 sm:ml-2 sm:border-0 sm:pl-0">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-red-500/10 hover:text-red-400 active:scale-90 active:bg-red-500/20 active:text-red-400 sm:h-9 sm:w-9"
+              title="Delete lobby"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -404,13 +408,12 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
           <button
             onClick={handleToggleVoting}
             disabled={!canStartVoting}
-            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-5 sm:text-base ${
-              lobby.isVotingOpen
-                ? "border border-red-500/30 bg-red-500/20 text-red-400 active:bg-red-500/30"
-                : canStartVoting
-                  ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-400 active:bg-emerald-500/30"
-                  : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
-            }`}
+            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-5 sm:text-base ${lobby.isVotingOpen
+              ? "border border-red-500/30 bg-red-500/20 text-red-400 active:bg-red-500/30"
+              : canStartVoting
+                ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-400 active:bg-emerald-500/30"
+                : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
+              }`}
           >
             {lobby.isVotingOpen ? "⏹ Close" : "▶ Open Voting"}
           </button>
@@ -418,11 +421,10 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
           <button
             onClick={handleStartPresentation}
             disabled={!canStartPresentation}
-            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-5 sm:text-base ${
-              canStartPresentation
-                ? "border border-sky-500/30 bg-sky-500/20 text-sky-400 active:bg-sky-500/30"
-                : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
-            }`}
+            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-5 sm:text-base ${canStartPresentation
+              ? "border border-sky-500/30 bg-sky-500/20 text-sky-400 active:bg-sky-500/30"
+              : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
+              }`}
           >
             🎬 Present
           </button>
@@ -597,80 +599,92 @@ function AwardItem({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl border border-navy-700/50 bg-navy-900/50">
+    <div
+      className={`overflow-hidden rounded-xl border transition-colors ${isEditing
+        ? "border-gold-500/30 bg-navy-800/50"
+        : "border-navy-700/50 bg-navy-900/50 hover:border-navy-600"
+        }`}
+    >
       {/* Award Header */}
       <div className="group p-3 sm:p-4">
-        <div className="flex items-start justify-between gap-2 sm:gap-3">
+        <div className="flex items-start justify-between gap-3">
+          {/* Award text / Edit input */}
           <div className="min-w-0 flex-1">
             {isEditing ? (
-              <div className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={editValue}
-                  onChange={(e) => setEditValue(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  onBlur={handleSaveEdit}
-                  className="w-full rounded-lg border border-gold-500/30 bg-navy-800 px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-gold-500 sm:text-base"
-                  autoFocus
-                />
-              </div>
+              <input
+                type="text"
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full rounded-lg border border-gold-500/50 bg-navy-900 px-3 py-2 text-sm text-white outline-none ring-2 ring-gold-500/20 focus:border-gold-500 focus:ring-gold-500/30 sm:text-base"
+                autoFocus
+              />
             ) : (
               <button
                 onClick={() => {
                   setEditValue(award.question);
                   setIsEditing(true);
                 }}
-                className="group/edit text-left"
+                className="group/edit w-full rounded-lg p-1.5 text-left transition-colors hover:bg-navy-800/50 active:bg-navy-800 sm:p-2"
               >
                 <span className="text-sm text-slate-200 group-hover/edit:text-white sm:text-base">
                   {award.question}
                 </span>
-                <Pencil className="ml-2 inline h-3 w-3 text-slate-500 opacity-0 transition-opacity group-hover/edit:opacity-100 sm:h-3.5 sm:w-3.5" />
+                <Pencil className="ml-2 inline h-3 w-3 text-slate-600 opacity-0 transition-opacity group-hover/edit:text-slate-400 group-hover/edit:opacity-100 sm:h-3.5 sm:w-3.5" />
               </button>
             )}
             {voteCount > 0 && !isEditing && (
-              <div className="mt-1 flex items-center gap-1 text-xs text-gold-400 sm:text-sm">
+              <div className="mt-1 flex items-center gap-1 pl-1.5 text-xs text-gold-400 sm:pl-2 sm:text-sm">
                 <Star className="h-3 w-3 fill-current sm:h-3.5 sm:w-3.5" />
                 {voteCount} vote{voteCount !== 1 ? "s" : ""}
               </div>
             )}
           </div>
-          <div className="flex items-center gap-1">
+
+          {/* Action buttons */}
+          <div className="flex flex-shrink-0 items-center gap-1">
             {isEditing ? (
+              /* Edit mode: Save and Cancel buttons */
               <>
                 <button
                   onClick={handleSaveEdit}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 transition-colors active:bg-emerald-500/20 sm:h-8 sm:w-8"
-                  title="Save"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 transition-all hover:bg-emerald-500/30 active:scale-90 active:bg-emerald-500/40 sm:h-9 sm:w-9"
+                  title="Save (Enter)"
                 >
-                  <Check className="h-4 w-4" />
+                  <Check className="h-5 w-5 sm:h-4 sm:w-4" />
                 </button>
                 <button
                   onClick={handleCancelEdit}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors active:bg-red-500/20 sm:h-8 sm:w-8"
-                  title="Cancel"
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-400 transition-all hover:bg-navy-700 hover:text-slate-300 active:scale-90 active:bg-navy-600 sm:h-9 sm:w-9"
+                  title="Cancel (Escape)"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5 sm:h-4 sm:w-4" />
                 </button>
               </>
             ) : (
+              /* View mode: Nominees and Delete buttons */
               <>
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors sm:h-8 sm:w-8 ${
-                    hasCustomNominees
-                      ? "bg-gold-500/10 text-gold-400 active:bg-gold-500/20"
-                      : "text-slate-500 active:bg-navy-700 sm:hover:bg-navy-700 sm:hover:text-slate-300"
-                  }`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all active:scale-90 sm:h-9 sm:w-9 ${hasCustomNominees
+                    ? "bg-gold-500/15 text-gold-400 hover:bg-gold-500/25 active:bg-gold-500/35"
+                    : isExpanded
+                      ? "bg-navy-700 text-slate-300"
+                      : "text-slate-500 hover:bg-navy-700 hover:text-slate-300 active:bg-navy-600"
+                    }`}
                   title="Select nominees"
                 >
-                  <Users className="h-4 w-4" />
+                  <Users className="h-5 w-5 sm:h-4 sm:w-4" />
                 </button>
                 <button
-                  onClick={onRemove}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 opacity-100 transition-colors active:bg-red-500/20 sm:h-8 sm:w-8 sm:opacity-0 sm:hover:bg-red-500/10 sm:hover:text-red-400 sm:group-hover:opacity-100"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemove();
+                  }}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 opacity-50 transition-all hover:bg-red-500/15 hover:text-red-400 hover:opacity-100 active:scale-90 active:bg-red-500/25 active:text-red-400 active:opacity-100 sm:h-9 sm:w-9 sm:opacity-0 sm:group-hover:opacity-100"
+                  title="Delete award"
                 >
-                  <X className="h-4 w-4" />
+                  <Trash2 className="h-5 w-5 sm:h-4 sm:w-4" />
                 </button>
               </>
             )}
@@ -679,7 +693,7 @@ function AwardItem({
 
         {/* Nominee count badge */}
         {hasCustomNominees && !isExpanded && !isEditing && (
-          <div className="mt-2 flex items-center gap-1.5">
+          <div className="mt-2 flex items-center gap-1.5 pl-1.5 sm:pl-2">
             <span className="text-xs text-slate-500">Nominees:</span>
             <div className="flex -space-x-1">
               {nomineeIds.slice(0, 4).map((id) => {
@@ -707,14 +721,14 @@ function AwardItem({
 
       {/* Expandable Nominee Selector */}
       {isExpanded && (
-        <div className="border-t border-navy-700/50 bg-navy-950/30 p-3 sm:p-4">
+        <div className="border-t border-navy-700/50 bg-navy-950/50 p-3 sm:p-4">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
               Select Nominees
             </span>
             <button
               onClick={selectAll}
-              className="rounded-lg px-2 py-1 text-xs text-gold-400 transition-colors active:bg-gold-500/10"
+              className="rounded-lg px-2.5 py-1.5 text-xs text-gold-400 transition-all hover:bg-gold-500/10 active:scale-95 active:bg-gold-500/20"
             >
               {hasCustomNominees ? "Select All" : "All Selected"}
             </button>
@@ -727,11 +741,10 @@ function AwardItem({
                 <button
                   key={friend._id}
                   onClick={() => toggleNominee(friend._id)}
-                  className={`rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95 sm:py-1.5 ${
-                    isSelected
-                      ? "border border-gold-500/30 bg-gold-500/20 text-gold-400"
-                      : "border border-navy-700 bg-navy-800 text-slate-500 active:border-navy-600"
-                  }`}
+                  className={`rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95 sm:py-1.5 ${isSelected
+                    ? "border border-gold-500/40 bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 active:bg-gold-500/40"
+                    : "active:border-navy-500 border border-navy-700 bg-navy-800 text-slate-500 hover:border-navy-600 hover:text-slate-400 active:bg-navy-700"
+                    }`}
                 >
                   {friend.name}
                 </button>
@@ -760,7 +773,7 @@ function FriendItem({
   onImageUpload: (file: File) => void;
 }) {
   return (
-    <div className="group rounded-xl border border-navy-700/50 bg-navy-900/50 p-3 transition-colors active:bg-navy-800/50 sm:hover:border-navy-600">
+    <div className="group rounded-xl border border-navy-700/50 bg-navy-900/50 p-3 transition-colors hover:border-navy-600 hover:bg-navy-800/30">
       <div className="flex items-center gap-3">
         <div className="flex-shrink-0">
           {friend.imageUrl ? (
@@ -783,8 +796,8 @@ function FriendItem({
         </span>
 
         <div className="flex gap-1 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
-          <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors active:bg-navy-600 sm:h-8 sm:w-8 sm:hover:bg-navy-700">
-            <ImageIcon className="h-5 w-5 text-slate-400 sm:h-4 sm:w-4" />
+          <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-gold-500/10 hover:text-gold-400 active:scale-90 active:bg-gold-500/20 active:text-gold-400 sm:h-9 sm:w-9">
+            <ImageIcon className="h-5 w-5 sm:h-4 sm:w-4" />
             <input
               type="file"
               accept="image/*"
@@ -797,9 +810,10 @@ function FriendItem({
           </label>
           <button
             onClick={onRemove}
-            className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors active:bg-red-500/30 sm:h-8 sm:w-8 sm:hover:bg-red-500/20"
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-red-500/15 hover:text-red-400 active:scale-90 active:bg-red-500/25 active:text-red-400 sm:h-9 sm:w-9"
+            title="Remove friend"
           >
-            <Trash2 className="h-5 w-5 text-slate-400 sm:h-4 sm:w-4" />
+            <Trash2 className="h-5 w-5 sm:h-4 sm:w-4" />
           </button>
         </div>
       </div>
