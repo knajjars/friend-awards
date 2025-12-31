@@ -160,6 +160,11 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
   const isComplete = currentAwardIndex >= awards.length;
   const hasVotedCurrent = votedAwards.has(currentAward?._id);
 
+  // Get nominees for current award (if specific nominees are set, use them; otherwise all friends)
+  const currentNominees = currentAward?.nomineeIds?.length > 0
+    ? friends.filter(f => currentAward.nomineeIds.includes(f._id))
+    : friends;
+
   // Completion Screen
   if (isComplete) {
     return (
@@ -226,9 +231,9 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
           {currentAward.question}
         </h2>
         
-        {/* Friend Options */}
+        {/* Nominee Options */}
         <div className="grid gap-3">
-          {friends.map((friend) => (
+          {currentNominees.map((friend) => (
             <button
               key={friend._id}
               onClick={() => handleVote(friend._id)}
@@ -258,6 +263,10 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
             </button>
           ))}
         </div>
+        
+        {currentNominees.length === 0 && (
+          <p className="text-slate-500 py-4">No nominees assigned for this award.</p>
+        )}
         
         {hasVotedCurrent && (
           <div className="mt-6 flex items-center justify-center gap-2 text-emerald-400">

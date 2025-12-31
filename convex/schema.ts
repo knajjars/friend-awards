@@ -22,6 +22,7 @@ const applicationTables = {
     lobbyId: v.id("lobbies"),
     question: v.string(),
     order: v.number(),
+    nomineeIds: v.optional(v.array(v.id("friends"))), // If empty/undefined, all friends are nominees
   }).index("by_lobby", ["lobbyId"]),
 
   votes: defineTable({

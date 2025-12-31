@@ -301,6 +301,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
   const updateFriendImage = useMutation(api.friends.updateFriendImage);
   const addAward = useMutation(api.awards.addAward);
   const removeAward = useMutation(api.awards.removeAward);
+  const updateNominees = useMutation(api.awards.updateNominees);
   const toggleVoting = useMutation(api.lobbies.toggleVoting);
   const startPresentation = useMutation(api.lobbies.startPresentation);
 
@@ -369,6 +370,14 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
     }
   };
 
+  const handleUpdateNominees = async (awardId: Id<"awards">, nomineeIds: Id<"friends">[]) => {
+    try {
+      await updateNominees({ awardId, nomineeIds });
+    } catch (error) {
+      toast.error("Failed to update nominees");
+    }
+  };
+
   if (!lobby) return null;
 
   const canStartVoting = friends.length >= 2 && awards.length >= 1;
@@ -418,7 +427,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
         <div>
           <div className="flex items-center gap-2 mb-4">
             <span className="text-xl">👥</span>
-            <h4 className="font-semibold text-white text-lg">Nominees ({friends.length})</h4>
+            <h4 className="font-semibold text-white text-lg">Friends ({friends.length})</h4>
           </div>
           
           <form onSubmit={handleAddFriend} className="mb-4">
@@ -483,31 +492,18 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
             </div>
           </form>
           
-          <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
+          <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
             {awards.map((award) => {
               const progress = votingProgress.find(p => p.awardId === award._id);
               return (
-                <div key={award._id} className="bg-navy-900/50 p-4 rounded-xl border border-navy-700/50 group">
-                  <div className="flex justify-between items-start gap-3">
-                    <span className="flex-1 text-slate-200">{award.question}</span>
-                    <button
-                      onClick={() => removeAward({ awardId: award._id })}
-                      className="text-slate-500 hover:text-red-400 transition-colors opacity-0 group-hover:opacity-100"
-                    >
-                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  </div>
-                  {progress && progress.voterCount > 0 && (
-                    <div className="text-sm text-gold-400 mt-2 flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                      {progress.voterCount} vote{progress.voterCount !== 1 ? 's' : ''}
-                    </div>
-                  )}
-                </div>
+                <AwardItem
+                  key={award._id}
+                  award={award}
+                  friends={friends}
+                  voteCount={progress?.voterCount || 0}
+                  onRemove={() => removeAward({ awardId: award._id })}
+                  onUpdateNominees={(nomineeIds) => handleUpdateNominees(award._id, nomineeIds)}
+                />
               );
             })}
             {awards.length === 0 && (
@@ -529,6 +525,149 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
               Add at least 2 friends and 1 award to open voting.
             </p>
           </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AwardItem({
+  award,
+  friends,
+  voteCount,
+  onRemove,
+  onUpdateNominees,
+}: {
+  award: any;
+  friends: any[];
+  voteCount: number;
+  onRemove: () => void;
+  onUpdateNominees: (nomineeIds: Id<"friends">[]) => void;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const nomineeIds: Id<"friends">[] = award.nomineeIds || [];
+  const hasCustomNominees = nomineeIds.length > 0;
+
+  const toggleNominee = (friendId: Id<"friends">) => {
+    if (nomineeIds.includes(friendId)) {
+      onUpdateNominees(nomineeIds.filter(id => id !== friendId));
+    } else {
+      onUpdateNominees([...nomineeIds, friendId]);
+    }
+  };
+
+  const selectAll = () => {
+    onUpdateNominees([]);
+  };
+
+  return (
+    <div className="bg-navy-900/50 rounded-xl border border-navy-700/50 overflow-hidden">
+      {/* Award Header */}
+      <div className="p-4 group">
+        <div className="flex justify-between items-start gap-3">
+          <div className="flex-1">
+            <span className="text-slate-200">{award.question}</span>
+            {voteCount > 0 && (
+              <div className="text-sm text-gold-400 mt-1 flex items-center gap-1">
+                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+                {voteCount} vote{voteCount !== 1 ? 's' : ''}
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className={`p-1.5 rounded-lg transition-colors ${
+                hasCustomNominees 
+                  ? 'text-gold-400 bg-gold-500/10 hover:bg-gold-500/20' 
+                  : 'text-slate-500 hover:text-slate-300 hover:bg-navy-700'
+              }`}
+              title="Select nominees"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+            </button>
+            <button
+              onClick={onRemove}
+              className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        {/* Nominee count badge */}
+        {hasCustomNominees && !isExpanded && (
+          <div className="mt-2 flex items-center gap-1.5">
+            <span className="text-xs text-slate-500">Nominees:</span>
+            <div className="flex -space-x-1">
+              {nomineeIds.slice(0, 4).map((id) => {
+                const friend = friends.find(f => f._id === id);
+                if (!friend) return null;
+                return (
+                  <div
+                    key={id}
+                    className="w-5 h-5 rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 flex items-center justify-center text-[10px] text-gold-400 font-medium ring-1 ring-navy-900"
+                    title={friend.name}
+                  >
+                    {friend.name.charAt(0).toUpperCase()}
+                  </div>
+                );
+              })}
+              {nomineeIds.length > 4 && (
+                <div className="w-5 h-5 rounded-full bg-navy-700 flex items-center justify-center text-[10px] text-slate-400 font-medium ring-1 ring-navy-900">
+                  +{nomineeIds.length - 4}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Expandable Nominee Selector */}
+      {isExpanded && (
+        <div className="border-t border-navy-700/50 p-4 bg-navy-950/30">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+              Select Nominees
+            </span>
+            <button
+              onClick={selectAll}
+              className="text-xs text-gold-400 hover:text-gold-300 transition-colors"
+            >
+              {hasCustomNominees ? 'Select All' : 'All Selected'}
+            </button>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            {friends.map((friend) => {
+              const isSelected = !hasCustomNominees || nomineeIds.includes(friend._id);
+              return (
+                <button
+                  key={friend._id}
+                  onClick={() => toggleNominee(friend._id)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    isSelected
+                      ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30'
+                      : 'bg-navy-800 text-slate-500 border border-navy-700 hover:border-navy-600'
+                  }`}
+                >
+                  {friend.name}
+                </button>
+              );
+            })}
+          </div>
+          
+          {friends.length === 0 && (
+            <p className="text-slate-500 text-sm text-center py-2">
+              Add friends first to assign nominees
+            </p>
+          )}
         </div>
       )}
     </div>
