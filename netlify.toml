@@ -1,0 +1,9 @@
+[build]
+  publish = "dist"
+  command = "npx convex deploy --cmd 'pnpm run build'"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
