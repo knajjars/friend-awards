@@ -1,5 +1,4 @@
-import { Authenticated, Unauthenticated, useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { Authenticated } from "convex/react";
 import { SignInForm } from "./SignInForm";
 import { SignOutButton } from "./SignOutButton";
 import { Toaster } from "sonner";
@@ -8,11 +7,12 @@ import { LobbyDashboard } from "./components/LobbyDashboard";
 import { VotingPage } from "./components/VotingPage";
 import { PresentationMode } from "./components/PresentationMode";
 import { useConvexAuth } from "convex/react";
+import { Routes, Route, Link, useNavigate, useParams, Navigate } from "react-router-dom";
 
 // Generate random stars for background
 function StarField() {
   const [stars, setStars] = useState<Array<{ id: number; left: number; top: number; delay: number; size: number }>>([]);
-  
+
   useEffect(() => {
     const newStars = Array.from({ length: 50 }, (_, i) => ({
       id: i,
@@ -43,49 +43,14 @@ function StarField() {
   );
 }
 
-type ViewType = "home" | "voting" | "presentation" | "signin" | "host";
-
-export default function App() {
-  const [shareCode, setShareCode] = useState("");
-  const [currentView, setCurrentView] = useState<ViewType>("home");
-  const [lobbyId, setLobbyId] = useState<string>("");
+// Layout wrapper with header
+function Layout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useConvexAuth();
-
-  const handleJoinLobby = (code: string) => {
-    setShareCode(code);
-    setCurrentView("voting");
-  };
-
-  const handleViewPresentation = (id: string) => {
-    setLobbyId(id);
-    setCurrentView("presentation");
-  };
-
-  const handleBackToHome = () => {
-    setCurrentView("home");
-    setShareCode("");
-    setLobbyId("");
-  };
-
-  const handleHostClick = () => {
-    if (isAuthenticated) {
-      setCurrentView("host");
-    } else {
-      setCurrentView("signin");
-    }
-  };
-
-  // If user signs in while on signin page, redirect to host
-  useEffect(() => {
-    if (isAuthenticated && currentView === "signin") {
-      setCurrentView("host");
-    }
-  }, [isAuthenticated, currentView]);
 
   return (
     <div className="min-h-screen flex flex-col bg-navy-950 relative">
       <StarField />
-      
+
       {/* Ambient glow effects */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         <div className="absolute -top-1/2 -left-1/4 w-full h-full bg-gradient-radial from-gold-500/5 via-transparent to-transparent" />
@@ -94,56 +59,38 @@ export default function App() {
 
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-navy-950/80 border-b border-navy-700/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex justify-between items-center">
-          <button 
-            onClick={handleBackToHome}
+          <Link
+            to="/"
             className="flex items-center gap-3 group"
           >
             <span className="text-3xl trophy-animate">🏆</span>
             <span className="font-display text-2xl text-gold-gradient">
               Friend Awards
             </span>
-          </button>
-          
+          </Link>
+
           <div className="flex items-center gap-3">
             <Authenticated>
-              {currentView !== "host" && (
-                <button
-                  onClick={() => setCurrentView("host")}
-                  className="btn-ghost text-sm hidden sm:flex items-center gap-2"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-                  </svg>
-                  My Lobbies
-                </button>
-              )}
+              <Link
+                to="/host"
+                className="btn-ghost text-sm hidden sm:flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                </svg>
+                My Lobbies
+              </Link>
               <SignOutButton />
             </Authenticated>
           </div>
         </div>
       </header>
-      
+
       <main className="flex-1 relative z-10 px-4 py-8">
-        {currentView === "home" && (
-          <HomePage onJoinLobby={handleJoinLobby} onHostClick={handleHostClick} />
-        )}
-        {currentView === "signin" && (
-          <SignInPage onBack={handleBackToHome} />
-        )}
-        {currentView === "host" && (
-          <Authenticated>
-            <HostPage onViewPresentation={handleViewPresentation} onBack={handleBackToHome} />
-          </Authenticated>
-        )}
-        {currentView === "voting" && shareCode && (
-          <VotingPage shareCode={shareCode} onBack={handleBackToHome} />
-        )}
-        {currentView === "presentation" && lobbyId && (
-          <PresentationMode lobbyId={lobbyId} onBack={handleBackToHome} />
-        )}
+        {children}
       </main>
-      
-      <Toaster 
+
+      <Toaster
         theme="dark"
         toastOptions={{
           style: {
@@ -157,17 +104,82 @@ export default function App() {
   );
 }
 
+export default function App() {
+  return (
+    <Layout>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/signin" element={<SignInPage />} />
+        <Route path="/host" element={<ProtectedHostPage />} />
+        <Route path="/vote/:shareCode" element={<VoteRoute />} />
+        <Route path="/present/:lobbyId" element={<PresentRoute />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Layout>
+  );
+}
+
+// Protected route wrapper for host page
+function ProtectedHostPage() {
+  const { isAuthenticated, isLoading } = useConvexAuth();
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="spinner" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  return <HostPage />;
+}
+
+// Vote route - extracts shareCode from URL
+function VoteRoute() {
+  const { shareCode } = useParams<{ shareCode: string }>();
+  const navigate = useNavigate();
+
+  if (!shareCode) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <VotingPage shareCode={shareCode} onBack={() => navigate("/")} />;
+}
+
+// Present route - extracts lobbyId from URL
+function PresentRoute() {
+  const { lobbyId } = useParams<{ lobbyId: string }>();
+  const navigate = useNavigate();
+
+  if (!lobbyId) {
+    return <Navigate to="/" replace />;
+  }
+
+  return <PresentationMode lobbyId={lobbyId} onBack={() => navigate("/host")} />;
+}
+
 // Home Page - Join lobby + Host CTA
-function HomePage({ onJoinLobby, onHostClick }: { 
-  onJoinLobby: (code: string) => void;
-  onHostClick: () => void;
-}) {
+function HomePage() {
   const [joinCode, setJoinCode] = useState("");
+  const navigate = useNavigate();
+  const { isAuthenticated } = useConvexAuth();
 
   const handleJoinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (joinCode.trim()) {
-      onJoinLobby(joinCode.trim().toUpperCase());
+      navigate(`/vote/${joinCode.trim().toUpperCase()}`);
+    }
+  };
+
+  const handleHostClick = () => {
+    if (isAuthenticated) {
+      navigate("/host");
+    } else {
+      navigate("/signin");
     }
   };
 
@@ -179,14 +191,14 @@ function HomePage({ onJoinLobby, onHostClick }: {
           <span className="w-2 h-2 rounded-full bg-gold-400 animate-pulse" />
           New Year's Edition
         </div>
-        
+
         <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold mb-6 leading-none tracking-tight">
           <span className="text-white">The</span>{" "}
           <span className="text-gold-gradient">Friend Awards</span>
         </h1>
-        
+
         <p className="text-xl sm:text-2xl text-slate-400 max-w-2xl mx-auto leading-relaxed font-light">
-          Vote on hilarious awards with your friends. 
+          Vote on hilarious awards with your friends.
           Celebrate the moments that made you laugh, cringe, and everything in between.
         </p>
       </div>
@@ -199,7 +211,7 @@ function HomePage({ onJoinLobby, onHostClick }: {
           </div>
           <h2 className="font-display text-2xl sm:text-3xl text-white">Join a Lobby</h2>
         </div>
-        
+
         <form onSubmit={handleJoinSubmit} className="space-y-4">
           <div>
             <input
@@ -231,7 +243,7 @@ function HomePage({ onJoinLobby, onHostClick }: {
       {/* Host Your Own CTA */}
       <div className="max-w-md mx-auto">
         <button
-          onClick={onHostClick}
+          onClick={handleHostClick}
           className="w-full glass-card p-7 sm:p-8 text-left group hover-lift cursor-pointer"
         >
           <div className="flex items-center justify-between">
@@ -270,18 +282,28 @@ function HomePage({ onJoinLobby, onHostClick }: {
 }
 
 // Sign In Page
-function SignInPage({ onBack }: { onBack: () => void }) {
+function SignInPage() {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useConvexAuth();
+
+  // Redirect to host if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/host", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
   return (
     <div className="max-w-md mx-auto mt-8">
-      <button
-        onClick={onBack}
-        className="btn-ghost flex items-center gap-2 mb-8"
+      <Link
+        to="/"
+        className="btn-ghost flex items-center gap-2 mb-8 w-fit"
       >
         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
         Back
-      </button>
+      </Link>
 
       <div className="glass-card-highlight p-8 sm:p-10">
         <div className="text-center mb-10">
@@ -291,7 +313,7 @@ function SignInPage({ onBack }: { onBack: () => void }) {
           <h1 className="font-display text-3xl sm:text-4xl text-white mb-3">Host Your Own</h1>
           <p className="text-lg text-slate-400">Sign in to create and manage your award ceremonies</p>
         </div>
-        
+
         <SignInForm />
       </div>
     </div>
@@ -299,23 +321,26 @@ function SignInPage({ onBack }: { onBack: () => void }) {
 }
 
 // Host Page - Lobby Dashboard
-function HostPage({ onViewPresentation, onBack }: { 
-  onViewPresentation: (id: string) => void;
-  onBack: () => void;
-}) {
+function HostPage() {
+  const navigate = useNavigate();
+
+  const handleViewPresentation = (lobbyId: string) => {
+    navigate(`/present/${lobbyId}`);
+  };
+
   return (
     <div>
-      <button
-        onClick={onBack}
-        className="btn-ghost flex items-center gap-2 mb-6 max-w-5xl mx-auto"
+      <Link
+        to="/"
+        className="btn-ghost flex items-center gap-2 mb-6 max-w-5xl mx-auto w-fit"
       >
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
         </svg>
         Back to Home
-      </button>
-      
-      <LobbyDashboard onViewPresentation={onViewPresentation} />
+      </Link>
+
+      <LobbyDashboard onViewPresentation={handleViewPresentation} />
     </div>
   );
 }

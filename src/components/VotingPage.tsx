@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
+import { Link, useNavigate } from "react-router-dom";
 
 interface VotingPageProps {
   shareCode: string;
-  onBack: () => void;
+  onBack?: () => void; // Deprecated: use React Router navigation instead
 }
 
-export function VotingPage({ shareCode, onBack }: VotingPageProps) {
+export function VotingPage({ shareCode }: VotingPageProps) {
+  const navigate = useNavigate();
   const [voterName, setVoterName] = useState("");
   const [currentAwardIndex, setCurrentAwardIndex] = useState(0);
   const [hasSetName, setHasSetName] = useState(false);
@@ -17,7 +19,7 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
   const lobby = useQuery(api.lobbies.getLobbyByShareCode, { shareCode });
   const friends = useQuery(api.friends.getFriends, lobby ? { lobbyId: lobby._id } : "skip") || [];
   const awards = useQuery(api.awards.getAwards, lobby ? { lobbyId: lobby._id } : "skip") || [];
-  
+
   const castVote = useMutation(api.votes.castVote);
 
   // Load voter name from localStorage
@@ -32,7 +34,7 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
   const handleSetName = (e: React.FormEvent) => {
     e.preventDefault();
     if (!voterName.trim()) return;
-    
+
     localStorage.setItem(`voter-name-${shareCode}`, voterName.trim());
     setHasSetName(true);
   };
@@ -50,10 +52,10 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
         friendId: friendId as any,
         voterName: voterName.trim(),
       });
-      
+
       setVotedAwards(prev => new Set([...prev, currentAward._id]));
       toast.success("Vote cast!");
-      
+
       // Move to next award
       if (currentAwardIndex < awards.length - 1) {
         setTimeout(() => setCurrentAwardIndex(currentAwardIndex + 1), 300);
@@ -73,9 +75,9 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
           <p className="text-slate-400 mb-6">
             The lobby code "{shareCode}" doesn't exist or has expired.
           </p>
-          <button onClick={onBack} className="btn-primary">
+          <Link to="/" className="btn-primary inline-block">
             Back to Home
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -88,14 +90,14 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
           <div className="text-6xl mb-4 animate-pulse">⏳</div>
           <h2 className="font-display text-2xl font-semibold text-white mb-2">{lobby.name}</h2>
           <p className="text-slate-400 mb-6">
-            {lobby.isPresentationMode 
+            {lobby.isPresentationMode
               ? "This lobby is revealing winners! Check back later for the next round."
               : "Voting hasn't started yet. The host will open voting soon!"
             }
           </p>
-          <button onClick={onBack} className="btn-secondary">
+          <Link to="/" className="btn-secondary inline-block">
             Back to Home
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -111,7 +113,7 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
             <h2 className="font-display text-2xl font-semibold text-white mb-1">{lobby.name}</h2>
             <p className="text-slate-400">Welcome! Let's get you set up.</p>
           </div>
-          
+
           <form onSubmit={handleSetName} className="space-y-5">
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -147,9 +149,9 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
           <div className="text-6xl mb-4">📋</div>
           <h2 className="font-display text-2xl font-semibold text-white mb-2">{lobby.name}</h2>
           <p className="text-slate-400 mb-6">No awards have been set up yet!</p>
-          <button onClick={onBack} className="btn-secondary">
+          <Link to="/" className="btn-secondary inline-block">
             Back to Home
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -161,8 +163,9 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
   const hasVotedCurrent = votedAwards.has(currentAward?._id);
 
   // Get nominees for current award (if specific nominees are set, use them; otherwise all friends)
-  const currentNominees = currentAward?.nomineeIds?.length > 0
-    ? friends.filter(f => currentAward.nomineeIds.includes(f._id))
+  const nomineeIds = currentAward?.nomineeIds || [];
+  const currentNominees = nomineeIds.length > 0
+    ? friends.filter(f => nomineeIds.includes(f._id))
     : friends;
 
   // Completion Screen
@@ -178,9 +181,9 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
           <p className="text-lg text-slate-400 mb-10">
             The host will reveal the results soon.
           </p>
-          <button onClick={onBack} className="btn-primary">
+          <Link to="/" className="btn-primary inline-block">
             Back to Home
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -196,28 +199,27 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
           </span>
           <span className="text-gold-400 font-medium">{voterName}</span>
         </div>
-        
+
         {/* Progress Bar */}
         <div className="h-1.5 bg-navy-800 rounded-full overflow-hidden">
-          <div 
+          <div
             className="h-full bg-gradient-to-r from-gold-500 to-amber-400 rounded-full transition-all duration-500 ease-out"
             style={{ width: `${((currentAwardIndex + 1) / awards.length) * 100}%` }}
           />
         </div>
-        
+
         {/* Progress Dots */}
         <div className="flex justify-center gap-1.5 mt-4">
           {awards.map((award, i) => (
             <button
               key={award._id}
               onClick={() => setCurrentAwardIndex(i)}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                i === currentAwardIndex 
-                  ? 'bg-gold-400 scale-125' 
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${i === currentAwardIndex
+                  ? 'bg-gold-400 scale-125'
                   : votedAwards.has(award._id)
-                  ? 'bg-emerald-500'
-                  : 'bg-navy-600 hover:bg-navy-500'
-              }`}
+                    ? 'bg-emerald-500'
+                    : 'bg-navy-600 hover:bg-navy-500'
+                }`}
             />
           ))}
         </div>
@@ -226,11 +228,11 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
       {/* Award Card */}
       <div className="glass-card-highlight p-8 sm:p-10 text-center mb-6">
         <div className="text-6xl mb-6 trophy-animate">🏆</div>
-        
+
         <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-white mb-10 leading-tight">
           {currentAward.question}
         </h2>
-        
+
         {/* Nominee Options */}
         <div className="grid gap-3">
           {currentNominees.map((friend) => (
@@ -238,17 +240,16 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
               key={friend._id}
               onClick={() => handleVote(friend._id)}
               disabled={hasVotedCurrent}
-              className={`w-full p-4 rounded-xl text-lg font-medium transition-all duration-300 flex items-center justify-center gap-3 group ${
-                hasVotedCurrent
+              className={`w-full p-4 rounded-xl text-lg font-medium transition-all duration-300 flex items-center justify-center gap-3 group ${hasVotedCurrent
                   ? 'bg-navy-800/50 text-slate-500 cursor-not-allowed'
                   : 'bg-navy-800/80 text-slate-200 hover:bg-gradient-to-r hover:from-gold-500/20 hover:to-amber-500/20 hover:text-white border border-navy-600 hover:border-gold-400/30 hover:scale-[1.02] hover:shadow-lg hover:shadow-gold-500/10'
-              }`}
+                }`}
             >
               {/* Avatar */}
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 flex items-center justify-center flex-shrink-0 group-hover:from-gold-500/50 group-hover:to-amber-500/50 transition-all">
                 {friend.imageUrl ? (
-                  <img 
-                    src={friend.imageUrl} 
+                  <img
+                    src={friend.imageUrl}
                     alt={friend.name}
                     className="w-full h-full rounded-full object-cover"
                   />
@@ -258,16 +259,16 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
                   </span>
                 )}
               </div>
-              
+
               <span>{friend.name}</span>
             </button>
           ))}
         </div>
-        
+
         {currentNominees.length === 0 && (
           <p className="text-slate-500 py-4">No nominees assigned for this award.</p>
         )}
-        
+
         {hasVotedCurrent && (
           <div className="mt-6 flex items-center justify-center gap-2 text-emerald-400">
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -290,7 +291,7 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
           </svg>
           Previous
         </button>
-        
+
         <button
           onClick={() => setCurrentAwardIndex(Math.min(awards.length, currentAwardIndex + 1))}
           className="btn-primary flex items-center gap-2"

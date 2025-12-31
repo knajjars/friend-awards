@@ -3,13 +3,15 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
 import confetti from "canvas-confetti";
+import { Link, useNavigate } from "react-router-dom";
 
 interface PresentationModeProps {
   lobbyId: string;
-  onBack: () => void;
+  onBack?: () => void; // Deprecated: use React Router navigation instead
 }
 
-export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
+export function PresentationMode({ lobbyId }: PresentationModeProps) {
+  const navigate = useNavigate();
 
   const lobby = useQuery(api.lobbies.getLobby, { lobbyId: lobbyId as Id<"lobbies"> });
   const voteResults = useQuery(api.votes.getVoteResults, { lobbyId: lobbyId as Id<"lobbies"> });
@@ -17,7 +19,7 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
 
   const awards = voteResults?.awards || [];
   const currentSlide = lobby?.currentSlide || 0;
-  
+
   // Calculate total slides: 2 per award (question + result)
   const totalSlides = awards.length * 2;
   const currentAwardIndex = Math.floor(currentSlide / 2);
@@ -67,6 +69,10 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
     }
   };
 
+  const handleExit = () => {
+    navigate("/host");
+  };
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -77,10 +83,10 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
         e.preventDefault();
         handlePrevious();
       } else if (e.key === 'Escape') {
-        onBack();
+        handleExit();
       }
     };
-    
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [currentSlide, totalSlides]);
@@ -100,9 +106,9 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
           <div className="text-6xl mb-4">📋</div>
           <h2 className="font-display text-2xl font-semibold text-white mb-2">No Awards Yet</h2>
           <p className="text-slate-400 mb-6">Add some awards to start the presentation!</p>
-          <button onClick={onBack} className="btn-primary">
+          <Link to="/host" className="btn-primary inline-block">
             Back to Dashboard
-          </button>
+          </Link>
         </div>
       </div>
     );
@@ -118,7 +124,7 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl animate-pulse-slow" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '2s' }} />
-        
+
         {/* Star particles */}
         {[...Array(30)].map((_, i) => (
           <div
@@ -136,7 +142,7 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
       {/* Header */}
       <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
         <button
-          onClick={onBack}
+          onClick={handleExit}
           className="btn-ghost flex items-center gap-2"
         >
           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -144,11 +150,11 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
           </svg>
           Exit
         </button>
-        
+
         <h1 className="font-display text-xl sm:text-2xl font-bold text-gold-gradient hidden sm:block">
           {lobby.name}
         </h1>
-        
+
         <div className="text-sm bg-navy-800/80 backdrop-blur px-4 py-2 rounded-full border border-navy-700">
           <span className="text-gold-400 font-semibold">{currentSlide + 1}</span>
           <span className="text-slate-400"> / {totalSlides}</span>
@@ -168,7 +174,7 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
               <div className="text-2xl sm:text-3xl text-slate-400 font-light">
                 And the winner is...
               </div>
-              
+
               {/* Dramatic pause indicator */}
               <div className="flex justify-center gap-2 mt-8">
                 {[...Array(3)].map((_, i) => (
@@ -184,11 +190,11 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
             // Result Slide
             <div className="space-y-6 animate-in fade-in zoom-in duration-500">
               <div className="text-7xl sm:text-8xl mb-6">🎉</div>
-              
+
               <h2 className="font-display text-3xl sm:text-4xl mb-4 text-slate-300">
                 {currentAward.question}
               </h2>
-              
+
               {winner ? (
                 <div className="space-y-8">
                   {/* Winner Name */}
@@ -199,7 +205,7 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
                     {/* Glow effect */}
                     <div className="absolute inset-0 bg-gold-400/20 blur-3xl -z-10" />
                   </div>
-                  
+
                   {/* Vote count */}
                   <div className="flex items-center justify-center gap-3 text-2xl sm:text-3xl text-slate-300">
                     <svg className="w-6 h-6 text-gold-400" fill="currentColor" viewBox="0 0 20 20">
@@ -210,15 +216,15 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
                       {' '}vote{winner.votes !== 1 ? 's' : ''}
                     </span>
                   </div>
-                  
+
                   {/* Runner-ups */}
                   {awardResults.length > 1 && (
                     <div className="mt-12 pt-8 border-t border-navy-700/50">
                       <div className="text-sm uppercase tracking-wider text-slate-500 mb-4">Runner-ups</div>
                       <div className="flex flex-wrap justify-center gap-6">
                         {awardResults.slice(1, 3).map((result, index) => (
-                          <div 
-                            key={result.friendId} 
+                          <div
+                            key={result.friendId}
                             className="bg-navy-800/50 backdrop-blur px-6 py-3 rounded-xl border border-navy-700/50"
                           >
                             <span className="text-slate-400 mr-2">#{index + 2}</span>
@@ -261,13 +267,12 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
               onClick={async () => {
                 await updateSlide({ lobbyId: lobbyId as Id<"lobbies">, slide: i });
               }}
-              className={`w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all duration-300 ${
-                i === currentSlide 
-                  ? 'bg-gold-400 scale-125' 
-                  : i < currentSlide 
+              className={`w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all duration-300 ${i === currentSlide
+                ? 'bg-gold-400 scale-125'
+                : i < currentSlide
                   ? 'bg-gold-400/50'
                   : 'bg-navy-600 hover:bg-navy-500'
-              }`}
+                }`}
             />
           ))}
         </div>
@@ -285,7 +290,7 @@ export function PresentationMode({ lobbyId, onBack }: PresentationModeProps) {
           </svg>
         </button>
       </div>
-      
+
       {/* Keyboard hints */}
       <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-xs text-slate-600 hidden sm:block">
         Use <kbd className="px-1.5 py-0.5 bg-navy-800 rounded border border-navy-700">←</kbd>{' '}
