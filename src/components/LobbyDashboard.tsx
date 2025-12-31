@@ -12,9 +12,11 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [lobbyName, setLobbyName] = useState("");
   const [selectedLobby, setSelectedLobby] = useState<string>("");
+  const [deletingLobby, setDeletingLobby] = useState<{ id: string; name: string } | null>(null);
 
   const lobbies = useQuery(api.lobbies.getUserLobbies) || [];
   const createLobby = useMutation(api.lobbies.createLobby);
+  const deleteLobby = useMutation(api.lobbies.deleteLobby);
 
   const handleCreateLobby = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +30,21 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
       setSelectedLobby(result.lobbyId);
     } catch (error) {
       toast.error("Failed to create lobby");
+    }
+  };
+
+  const handleDeleteLobby = async () => {
+    if (!deletingLobby) return;
+    
+    try {
+      await deleteLobby({ lobbyId: deletingLobby.id as Id<"lobbies"> });
+      toast.success("Lobby deleted");
+      if (selectedLobby === deletingLobby.id) {
+        setSelectedLobby("");
+      }
+      setDeletingLobby(null);
+    } catch (error) {
+      toast.error("Failed to delete lobby");
     }
   };
 
@@ -97,6 +114,44 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      {deletingLobby && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm">
+          <div className="glass-card p-8 w-full max-w-md animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center gap-4 mb-6">
+              <div className="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center">
+                <svg className="w-7 h-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <h3 className="font-display text-2xl text-white">Delete Lobby</h3>
+            </div>
+            
+            <p className="text-slate-300 mb-2">
+              Are you sure you want to delete <span className="text-white font-semibold">"{deletingLobby.name}"</span>?
+            </p>
+            <p className="text-slate-500 text-sm mb-8">
+              This will permanently delete all friends, awards, and votes. This action cannot be undone.
+            </p>
+            
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeletingLobby(null)}
+                className="btn-secondary flex-1"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteLobby}
+                className="flex-1 px-6 py-3 bg-red-500/20 text-red-400 font-semibold rounded-xl border border-red-500/30 hover:bg-red-500/30 transition-all"
+              >
+                Delete Lobby
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Lobbies Grid */}
       <div className="grid gap-4">
         {lobbies.map((lobby) => (
@@ -106,6 +161,7 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
             isSelected={selectedLobby === lobby._id}
             onSelect={() => setSelectedLobby(selectedLobby === lobby._id ? "" : lobby._id)}
             onViewPresentation={() => onViewPresentation(lobby._id)}
+            onDelete={() => setDeletingLobby({ id: lobby._id, name: lobby.name })}
           />
         ))}
         
@@ -136,12 +192,14 @@ function LobbyCard({
   lobby, 
   isSelected, 
   onSelect, 
-  onViewPresentation 
+  onViewPresentation,
+  onDelete,
 }: { 
   lobby: any; 
   isSelected: boolean; 
   onSelect: () => void;
   onViewPresentation: () => void;
+  onDelete: () => void;
 }) {
   const copyShareCode = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -209,6 +267,18 @@ function LobbyCard({
             className="btn-secondary py-2 text-sm"
           >
             {isSelected ? 'Collapse' : 'Manage'}
+          </button>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+            className="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
+            title="Delete lobby"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
           </button>
         </div>
       </div>

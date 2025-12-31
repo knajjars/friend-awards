@@ -123,6 +123,7 @@ export const updateSlide = mutation({
     lobbyId: v.id("lobbies"),
     slide: v.number(),
   },
+  returns: v.null(),
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) {
@@ -137,5 +138,60 @@ export const updateSlide = mutation({
     await ctx.db.patch(args.lobbyId, {
       currentSlide: args.slide,
     });
+    return null;
+  },
+});
+
+export const deleteLobby = mutation({
+  args: {
+    lobbyId: v.id("lobbies"),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Must be logged in");
+    }
+
+    const lobby = await ctx.db.get(args.lobbyId);
+    if (!lobby || lobby.creatorId !== userId) {
+      throw new Error("Not authorized to delete this lobby");
+    }
+
+    // Delete all votes for this lobby
+    const votes = await ctx.db
+      .query("votes")
+      .withIndex("by_lobby_and_award", (q) => q.eq("lobbyId", args.lobbyId))
+      .collect();
+    for (const vote of votes) {
+      await ctx.db.delete(vote._id);
+    }
+
+    // Delete all awards for this lobby
+    const awards = await ctx.db
+      .query("awards")
+      .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
+      .collect();
+    for (const award of awards) {
+      await ctx.db.delete(award._id);
+    }
+
+    // Delete all friends for this lobby
+    const friends = await ctx.db
+      .query("friends")
+      .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
+      .collect();
+    for (const friend of friends) {
+      // Delete associated image if exists
+      if (friend.imageId) {
+        await ctx.storage.delete(friend.imageId);
+      }
+      await ctx.db.delete(friend._id);
+    }
+
+    // Delete the lobby itself
+    await ctx.db.delete(args.lobbyId);
+    
+    return null;
   },
 });
