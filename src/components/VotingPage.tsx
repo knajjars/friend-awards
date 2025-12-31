@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface VotingPageProps {
   shareCode: string;
@@ -271,9 +272,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
 
         {hasVotedCurrent && (
           <div className="mt-6 flex items-center justify-center gap-2 text-emerald-400">
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-            </svg>
+            <Check className="w-5 h-5" />
             <span className="font-medium">Vote recorded!</span>
           </div>
         )}
@@ -286,9 +285,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
           disabled={currentAwardIndex === 0}
           className="btn-secondary flex items-center gap-2"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          <ChevronLeft className="w-4 h-4" />
           Previous
         </button>
 
@@ -297,9 +294,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
           className="btn-primary flex items-center gap-2"
         >
           {isLastAward ? 'Finish' : 'Next'}
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          <ChevronRight className="w-4 h-4" />
         </button>
       </div>
     </div>

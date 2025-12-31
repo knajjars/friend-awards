@@ -8,6 +8,7 @@ import { VotingPage } from "./components/VotingPage";
 import { PresentationMode } from "./components/PresentationMode";
 import { useConvexAuth } from "convex/react";
 import { Routes, Route, Link, useNavigate, useParams, Navigate } from "react-router-dom";
+import { Menu, ChevronRight, ChevronLeft } from "lucide-react";
 
 // Generate random stars for background
 function StarField() {
@@ -75,9 +76,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                 to="/host"
                 className="btn-ghost text-sm hidden sm:flex items-center gap-2"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
-                </svg>
+                <Menu className="w-4 h-4" />
                 My Lobbies
               </Link>
               <SignOutButton />
@@ -256,9 +255,7 @@ function HomePage() {
                 <p className="text-slate-400">Create and run your own award ceremony</p>
               </div>
             </div>
-            <svg className="w-6 h-6 text-slate-500 group-hover:text-gold-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            <ChevronRight className="w-6 h-6 text-slate-500 group-hover:text-gold-400 group-hover:translate-x-1 transition-all" />
           </div>
         </button>
       </div>
@@ -299,9 +296,7 @@ function SignInPage() {
         to="/"
         className="btn-ghost flex items-center gap-2 mb-8 w-fit"
       >
-        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
+        <ChevronLeft className="w-5 h-5" />
         Back
       </Link>
 
@@ -334,9 +329,7 @@ function HostPage() {
         to="/"
         className="btn-ghost flex items-center gap-2 mb-6 max-w-5xl mx-auto w-fit"
       >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-        </svg>
+        <ChevronLeft className="w-4 h-4" />
         Back to Home
       </Link>
 

@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { Id } from "../../convex/_generated/dataModel";
+import { Plus, Trash2, Copy, Users, X, ImageIcon, Star } from "lucide-react";
 
 interface LobbyDashboardProps {
   onViewPresentation: (lobbyId: string) => void;
@@ -35,7 +36,7 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
 
   const handleDeleteLobby = async () => {
     if (!deletingLobby) return;
-    
+
     try {
       await deleteLobby({ lobbyId: deletingLobby.id as Id<"lobbies"> });
       toast.success("Lobby deleted");
@@ -60,9 +61,7 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
           onClick={() => setShowCreateForm(true)}
           className="btn-primary flex items-center gap-2"
         >
-          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
+          <Plus className="w-5 h-5" />
           Create Lobby
         </button>
       </div>
@@ -77,7 +76,7 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
               </div>
               <h3 className="font-display text-2xl sm:text-3xl text-white">New Lobby</h3>
             </div>
-            
+
             <form onSubmit={handleCreateLobby} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
@@ -92,7 +91,7 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
                   autoFocus
                 />
               </div>
-              
+
               <div className="flex gap-3">
                 <button
                   type="button"
@@ -120,20 +119,18 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
           <div className="glass-card p-8 w-full max-w-md animate-in fade-in zoom-in duration-200">
             <div className="flex items-center gap-4 mb-6">
               <div className="w-14 h-14 rounded-2xl bg-red-500/20 flex items-center justify-center">
-                <svg className="w-7 h-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
+                <Trash2 className="w-7 h-7 text-red-400" />
               </div>
               <h3 className="font-display text-2xl text-white">Delete Lobby</h3>
             </div>
-            
+
             <p className="text-slate-300 mb-2">
               Are you sure you want to delete <span className="text-white font-semibold">"{deletingLobby.name}"</span>?
             </p>
             <p className="text-slate-500 text-sm mb-8">
               This will permanently delete all friends, awards, and votes. This action cannot be undone.
             </p>
-            
+
             <div className="flex gap-3">
               <button
                 onClick={() => setDeletingLobby(null)}
@@ -164,7 +161,7 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
             onDelete={() => setDeletingLobby({ id: lobby._id, name: lobby.name })}
           />
         ))}
-        
+
         {lobbies.length === 0 && !showCreateForm && (
           <div className="glass-card p-12 text-center">
             <div className="text-5xl mb-4">🎭</div>
@@ -188,15 +185,15 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
   );
 }
 
-function LobbyCard({ 
-  lobby, 
-  isSelected, 
-  onSelect, 
+function LobbyCard({
+  lobby,
+  isSelected,
+  onSelect,
   onViewPresentation,
   onDelete,
-}: { 
-  lobby: any; 
-  isSelected: boolean; 
+}: {
+  lobby: any;
+  isSelected: boolean;
   onSelect: () => void;
   onViewPresentation: () => void;
   onDelete: () => void;
@@ -208,10 +205,9 @@ function LobbyCard({
   };
 
   return (
-    <div 
-      className={`glass-card p-6 cursor-pointer transition-all duration-300 hover-lift ${
-        isSelected ? 'ring-2 ring-gold-400/50 bg-navy-800/70' : ''
-      }`}
+    <div
+      className={`glass-card p-6 cursor-pointer transition-all duration-300 hover-lift ${isSelected ? 'ring-2 ring-gold-400/50 bg-navy-800/70' : ''
+        }`}
       onClick={onSelect}
     >
       <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -219,18 +215,16 @@ function LobbyCard({
           <h3 className="font-display text-xl font-semibold text-white mb-3 truncate">
             {lobby.name}
           </h3>
-          
+
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={copyShareCode}
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-navy-900/80 border border-navy-600 hover:border-gold-400/30 transition-colors group"
             >
               <span className="font-mono text-gold-400 tracking-wider">{lobby.shareCode}</span>
-              <svg className="w-4 h-4 text-slate-500 group-hover:text-gold-400 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
+              <Copy className="w-4 h-4 text-slate-500 group-hover:text-gold-400 transition-colors" />
             </button>
-            
+
             {lobby.isVotingOpen ? (
               <span className="badge-success">
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2 animate-pulse" />
@@ -246,7 +240,7 @@ function LobbyCard({
             )}
           </div>
         </div>
-        
+
         <div className="flex gap-2 self-start">
           {lobby.isPresentationMode && (
             <button
@@ -276,9 +270,7 @@ function LobbyCard({
             className="p-2 rounded-xl text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-all"
             title="Delete lobby"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
+            <Trash2 className="w-5 h-5" />
           </button>
         </div>
       </div>
@@ -357,11 +349,11 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
         headers: { "Content-Type": file.type },
         body: file,
       });
-      
+
       if (!result.ok) {
         throw new Error("Upload failed");
       }
-      
+
       const { storageId } = await result.json();
       await updateFriendImage({ friendId: friendId as any, imageId: storageId });
       toast.success("Image uploaded!");
@@ -391,30 +383,28 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
           <h3 className="font-display text-2xl font-semibold text-white mb-1">{lobby.name}</h3>
           <p className="text-slate-400 text-sm">Configure your awards ceremony</p>
         </div>
-        
+
         <div className="flex flex-wrap gap-3">
           <button
             onClick={handleToggleVoting}
             disabled={!canStartVoting}
-            className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 ${
-              lobby.isVotingOpen
-                ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
-                : canStartVoting
+            className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 ${lobby.isVotingOpen
+              ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
+              : canStartVoting
                 ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/30'
                 : 'bg-navy-700/50 text-slate-500 border border-navy-600 cursor-not-allowed'
-            }`}
+              }`}
           >
             {lobby.isVotingOpen ? '⏹ Close Voting' : '▶ Open Voting'}
           </button>
-          
+
           <button
             onClick={handleStartPresentation}
             disabled={!canStartPresentation}
-            className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 ${
-              canStartPresentation
-                ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30 hover:bg-sky-500/30'
-                : 'bg-navy-700/50 text-slate-500 border border-navy-600 cursor-not-allowed'
-            }`}
+            className={`px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 ${canStartPresentation
+              ? 'bg-sky-500/20 text-sky-400 border border-sky-500/30 hover:bg-sky-500/30'
+              : 'bg-navy-700/50 text-slate-500 border border-navy-600 cursor-not-allowed'
+              }`}
           >
             🎬 Start Presentation
           </button>
@@ -429,7 +419,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
             <span className="text-xl">👥</span>
             <h4 className="font-semibold text-white text-lg">Friends ({friends.length})</h4>
           </div>
-          
+
           <form onSubmit={handleAddFriend} className="mb-4">
             <div className="flex gap-2">
               <input
@@ -448,7 +438,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
               </button>
             </div>
           </form>
-          
+
           <div className="space-y-2 max-h-64 overflow-y-auto pr-2">
             {friends.map((friend) => (
               <FriendItem
@@ -472,7 +462,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
             <span className="text-xl">🏆</span>
             <h4 className="font-semibold text-white text-lg">Awards ({awards.length})</h4>
           </div>
-          
+
           <form onSubmit={handleAddAward} className="mb-4">
             <div className="flex gap-2">
               <input
@@ -491,7 +481,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
               </button>
             </div>
           </form>
-          
+
           <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2">
             {awards.map((award) => {
               const progress = votingProgress.find(p => p.awardId === award._id);
@@ -569,9 +559,7 @@ function AwardItem({
             <span className="text-slate-200">{award.question}</span>
             {voteCount > 0 && (
               <div className="text-sm text-gold-400 mt-1 flex items-center gap-1">
-                <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                </svg>
+                <Star className="w-3.5 h-3.5 fill-current" />
                 {voteCount} vote{voteCount !== 1 ? 's' : ''}
               </div>
             )}
@@ -579,28 +567,23 @@ function AwardItem({
           <div className="flex items-center gap-1">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className={`p-1.5 rounded-lg transition-colors ${
-                hasCustomNominees 
-                  ? 'text-gold-400 bg-gold-500/10 hover:bg-gold-500/20' 
-                  : 'text-slate-500 hover:text-slate-300 hover:bg-navy-700'
-              }`}
+              className={`p-1.5 rounded-lg transition-colors ${hasCustomNominees
+                ? 'text-gold-400 bg-gold-500/10 hover:bg-gold-500/20'
+                : 'text-slate-500 hover:text-slate-300 hover:bg-navy-700'
+                }`}
               title="Select nominees"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
+              <Users className="w-4 h-4" />
             </button>
             <button
               onClick={onRemove}
               className="p-1.5 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              <X className="w-4 h-4" />
             </button>
           </div>
         </div>
-        
+
         {/* Nominee count badge */}
         {hasCustomNominees && !isExpanded && (
           <div className="mt-2 flex items-center gap-1.5">
@@ -643,7 +626,7 @@ function AwardItem({
               {hasCustomNominees ? 'Select All' : 'All Selected'}
             </button>
           </div>
-          
+
           <div className="flex flex-wrap gap-2">
             {friends.map((friend) => {
               const isSelected = !hasCustomNominees || nomineeIds.includes(friend._id);
@@ -651,18 +634,17 @@ function AwardItem({
                 <button
                   key={friend._id}
                   onClick={() => toggleNominee(friend._id)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                    isSelected
-                      ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30'
-                      : 'bg-navy-800 text-slate-500 border border-navy-700 hover:border-navy-600'
-                  }`}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${isSelected
+                    ? 'bg-gold-500/20 text-gold-400 border border-gold-500/30'
+                    : 'bg-navy-800 text-slate-500 border border-navy-700 hover:border-navy-600'
+                    }`}
                 >
                   {friend.name}
                 </button>
               );
             })}
           </div>
-          
+
           {friends.length === 0 && (
             <p className="text-slate-500 text-sm text-center py-2">
               Add friends first to assign nominees
@@ -674,12 +656,12 @@ function AwardItem({
   );
 }
 
-function FriendItem({ 
-  friend, 
-  onRemove, 
-  onImageUpload 
-}: { 
-  friend: any; 
+function FriendItem({
+  friend,
+  onRemove,
+  onImageUpload
+}: {
+  friend: any;
   onRemove: () => void;
   onImageUpload: (file: File) => void;
 }) {
@@ -688,8 +670,8 @@ function FriendItem({
       <div className="flex items-center gap-3">
         <div className="flex-shrink-0">
           {friend.imageUrl ? (
-            <img 
-              src={friend.imageUrl} 
+            <img
+              src={friend.imageUrl}
               alt={friend.name}
               className="w-10 h-10 rounded-full object-cover ring-2 ring-navy-600"
             />
@@ -701,14 +683,12 @@ function FriendItem({
             </div>
           )}
         </div>
-        
+
         <span className="flex-1 font-medium text-slate-200 truncate">{friend.name}</span>
-        
+
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <label className="cursor-pointer p-2 rounded-lg hover:bg-navy-700 transition-colors">
-            <svg className="w-4 h-4 text-slate-400 hover:text-gold-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
+            <ImageIcon className="w-4 h-4 text-slate-400 hover:text-gold-400" />
             <input
               type="file"
               accept="image/*"
@@ -723,9 +703,7 @@ function FriendItem({
             onClick={onRemove}
             className="p-2 rounded-lg hover:bg-red-500/20 transition-colors"
           >
-            <svg className="w-4 h-4 text-slate-400 hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
+            <Trash2 className="w-4 h-4 text-slate-400 hover:text-red-400" />
           </button>
         </div>
       </div>
