@@ -30,7 +30,8 @@ const applicationTables = {
     awardId: v.id("awards"),
     friendId: v.id("friends"),
     voterName: v.string(), // Anonymous voter name
-  }).index("by_lobby_and_award", ["lobbyId", "awardId"])
+  })
+    .index("by_lobby_and_award", ["lobbyId", "awardId"])
     .index("by_award", ["awardId"]),
 };
 

@@ -32,8 +32,9 @@ export const getFriends = query({
     lobbyId: v.id("lobbies"),
   },
   handler: async (ctx, args) => {
-    const friends = await ctx.db.query("friends")
-      .withIndex("by_lobby", q => q.eq("lobbyId", args.lobbyId))
+    const friends = await ctx.db
+      .query("friends")
+      .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
       .collect();
 
     return Promise.all(

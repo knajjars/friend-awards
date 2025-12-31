@@ -12,7 +12,9 @@ import { Menu, ChevronRight, ChevronLeft } from "lucide-react";
 
 // Generate random stars for background
 function StarField() {
-  const [stars, setStars] = useState<Array<{ id: number; left: number; top: number; delay: number; size: number }>>([]);
+  const [stars, setStars] = useState<
+    Array<{ id: number; left: number; top: number; delay: number; size: number }>
+  >([]);
 
   useEffect(() => {
     const newStars = Array.from({ length: 50 }, (_, i) => ({
@@ -49,34 +51,26 @@ function Layout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useConvexAuth();
 
   return (
-    <div className="min-h-screen flex flex-col bg-navy-950 relative">
+    <div className="relative flex min-h-screen flex-col bg-navy-950">
       <StarField />
 
       {/* Ambient glow effects */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-1/2 -left-1/4 w-full h-full bg-gradient-radial from-gold-500/5 via-transparent to-transparent" />
-        <div className="absolute -bottom-1/2 -right-1/4 w-full h-full bg-gradient-radial from-amber-500/3 via-transparent to-transparent" />
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -left-1/4 -top-1/2 h-full w-full bg-gradient-radial from-gold-500/5 via-transparent to-transparent" />
+        <div className="from-amber-500/3 absolute -bottom-1/2 -right-1/4 h-full w-full bg-gradient-radial via-transparent to-transparent" />
       </div>
 
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-navy-950/80 border-b border-navy-700/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex justify-between items-center">
-          <Link
-            to="/"
-            className="flex items-center gap-3 group"
-          >
-            <span className="text-3xl trophy-animate">🏆</span>
-            <span className="font-display text-2xl text-gold-gradient">
-              Friend Awards
-            </span>
+      <header className="sticky top-0 z-50 border-b border-navy-700/50 bg-navy-950/80 backdrop-blur-xl">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
+          <Link to="/" className="group flex items-center gap-3">
+            <span className="trophy-animate text-3xl">🏆</span>
+            <span className="text-gold-gradient font-display text-2xl">Friend Awards</span>
           </Link>
 
           <div className="flex items-center gap-3">
             <Authenticated>
-              <Link
-                to="/host"
-                className="btn-ghost text-sm hidden sm:flex items-center gap-2"
-              >
-                <Menu className="w-4 h-4" />
+              <Link to="/host" className="btn-ghost hidden items-center gap-2 text-sm sm:flex">
+                <Menu className="h-4 w-4" />
                 My Lobbies
               </Link>
               <SignOutButton />
@@ -85,9 +79,7 @@ function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="flex-1 relative z-10 px-4 py-8">
-        {children}
-      </main>
+      <main className="relative z-10 flex-1 px-4 py-8">{children}</main>
 
       <Toaster
         theme="dark"
@@ -124,7 +116,7 @@ function ProtectedHostPage() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
+      <div className="flex min-h-[400px] items-center justify-center">
         <div className="spinner" />
       </div>
     );
@@ -183,32 +175,32 @@ function HomePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="mx-auto max-w-4xl">
       {/* Hero Section */}
-      <div className="text-center mb-14">
-        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 font-medium mb-8">
-          <span className="w-2 h-2 rounded-full bg-gold-400 animate-pulse" />
+      <div className="mb-14 text-center">
+        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-5 py-2.5 font-medium text-gold-400">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-gold-400" />
           New Year's Edition
         </div>
 
-        <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold mb-6 leading-none tracking-tight">
+        <h1 className="mb-6 font-display text-6xl font-bold leading-none tracking-tight sm:text-7xl md:text-8xl">
           <span className="text-white">The</span>{" "}
           <span className="text-gold-gradient">Friend Awards</span>
         </h1>
 
-        <p className="text-xl sm:text-2xl text-slate-400 max-w-2xl mx-auto leading-relaxed font-light">
-          Vote on hilarious awards with your friends.
-          Celebrate the moments that made you laugh, cringe, and everything in between.
+        <p className="mx-auto max-w-2xl text-xl font-light leading-relaxed text-slate-400 sm:text-2xl">
+          Vote on hilarious awards with your friends. Celebrate the moments that made you laugh,
+          cringe, and everything in between.
         </p>
       </div>
 
       {/* Join Lobby Card */}
-      <div className="glass-card-highlight p-8 sm:p-10 mb-8 max-w-md mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-gold-500/20 flex items-center justify-center">
+      <div className="glass-card-highlight mx-auto mb-8 max-w-md p-8 sm:p-10">
+        <div className="mb-8 flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-500/20">
             <span className="text-2xl">🎫</span>
           </div>
-          <h2 className="font-display text-2xl sm:text-3xl text-white">Join a Lobby</h2>
+          <h2 className="font-display text-2xl text-white sm:text-3xl">Join a Lobby</h2>
         </div>
 
         <form onSubmit={handleJoinSubmit} className="space-y-4">
@@ -218,58 +210,54 @@ function HomePage() {
               placeholder="Enter 6-digit code"
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-              className="input-field text-center text-xl tracking-[0.3em] font-mono uppercase placeholder:tracking-normal placeholder:text-base"
+              className="input-field text-center font-mono text-xl uppercase tracking-[0.3em] placeholder:text-base placeholder:tracking-normal"
               maxLength={6}
             />
           </div>
-          <button
-            type="submit"
-            disabled={!joinCode.trim()}
-            className="btn-primary w-full text-lg"
-          >
+          <button type="submit" disabled={!joinCode.trim()} className="btn-primary w-full text-lg">
             Join the Party
           </button>
         </form>
       </div>
 
       {/* Divider */}
-      <div className="flex items-center justify-center gap-4 my-10 max-w-md mx-auto">
-        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-navy-600" />
-        <span className="text-slate-500 text-sm">or</span>
-        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-navy-600" />
+      <div className="mx-auto my-10 flex max-w-md items-center justify-center gap-4">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent to-navy-600" />
+        <span className="text-sm text-slate-500">or</span>
+        <div className="h-px flex-1 bg-gradient-to-l from-transparent to-navy-600" />
       </div>
 
       {/* Host Your Own CTA */}
-      <div className="max-w-md mx-auto">
+      <div className="mx-auto max-w-md">
         <button
           onClick={handleHostClick}
-          className="w-full glass-card p-7 sm:p-8 text-left group hover-lift cursor-pointer"
+          className="glass-card hover-lift group w-full cursor-pointer p-7 text-left sm:p-8"
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-5">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-500/20 to-amber-500/20 flex items-center justify-center group-hover:from-gold-500/30 group-hover:to-amber-500/30 transition-all">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-gold-500/20 to-amber-500/20 transition-all group-hover:from-gold-500/30 group-hover:to-amber-500/30">
                 <span className="text-3xl">✨</span>
               </div>
               <div>
-                <h3 className="font-display text-xl sm:text-2xl text-white mb-1">Host Your Own</h3>
+                <h3 className="mb-1 font-display text-xl text-white sm:text-2xl">Host Your Own</h3>
                 <p className="text-slate-400">Create and run your own award ceremony</p>
               </div>
             </div>
-            <ChevronRight className="w-6 h-6 text-slate-500 group-hover:text-gold-400 group-hover:translate-x-1 transition-all" />
+            <ChevronRight className="h-6 w-6 text-slate-500 transition-all group-hover:translate-x-1 group-hover:text-gold-400" />
           </div>
         </button>
       </div>
 
       {/* Features */}
-      <div className="grid sm:grid-cols-3 gap-6 mt-20 max-w-3xl mx-auto">
+      <div className="mx-auto mt-20 grid max-w-3xl gap-6 sm:grid-cols-3">
         {[
           { icon: "🎭", title: "Fun Awards", desc: "Create hilarious categories" },
           { icon: "🗳️", title: "Easy Voting", desc: "Friends vote in seconds" },
           { icon: "🎬", title: "Epic Reveals", desc: "Present winners in style" },
         ].map((feature) => (
-          <div key={feature.title} className="text-center p-6">
-            <div className="text-4xl mb-3">{feature.icon}</div>
-            <h4 className="font-display text-lg text-white mb-2">{feature.title}</h4>
+          <div key={feature.title} className="p-6 text-center">
+            <div className="mb-3 text-4xl">{feature.icon}</div>
+            <h4 className="mb-2 font-display text-lg text-white">{feature.title}</h4>
             <p className="text-slate-500">{feature.desc}</p>
           </div>
         ))}
@@ -291,22 +279,21 @@ function SignInPage() {
   }, [isAuthenticated, navigate]);
 
   return (
-    <div className="max-w-md mx-auto mt-8">
-      <Link
-        to="/"
-        className="btn-ghost flex items-center gap-2 mb-8 w-fit"
-      >
-        <ChevronLeft className="w-5 h-5" />
+    <div className="mx-auto mt-8 max-w-md">
+      <Link to="/" className="btn-ghost mb-8 flex w-fit items-center gap-2">
+        <ChevronLeft className="h-5 w-5" />
         Back
       </Link>
 
       <div className="glass-card-highlight p-8 sm:p-10">
-        <div className="text-center mb-10">
-          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gold-500/20 to-amber-500/20 flex items-center justify-center mx-auto mb-6">
+        <div className="mb-10 text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-gold-500/20 to-amber-500/20">
             <span className="text-4xl">✨</span>
           </div>
-          <h1 className="font-display text-3xl sm:text-4xl text-white mb-3">Host Your Own</h1>
-          <p className="text-lg text-slate-400">Sign in to create and manage your award ceremonies</p>
+          <h1 className="mb-3 font-display text-3xl text-white sm:text-4xl">Host Your Own</h1>
+          <p className="text-lg text-slate-400">
+            Sign in to create and manage your award ceremonies
+          </p>
         </div>
 
         <SignInForm />
@@ -325,11 +312,8 @@ function HostPage() {
 
   return (
     <div>
-      <Link
-        to="/"
-        className="btn-ghost flex items-center gap-2 mb-6 max-w-5xl mx-auto w-fit"
-      >
-        <ChevronLeft className="w-4 h-4" />
+      <Link to="/" className="btn-ghost mx-auto mb-6 flex w-fit max-w-5xl items-center gap-2">
+        <ChevronLeft className="h-4 w-4" />
         Back to Home
       </Link>
 

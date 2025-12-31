@@ -15,11 +15,12 @@ export const castVote = mutation({
     }
 
     // Remove any existing vote from this voter for this award
-    const existingVote = await ctx.db.query("votes")
-      .withIndex("by_lobby_and_award", q => 
+    const existingVote = await ctx.db
+      .query("votes")
+      .withIndex("by_lobby_and_award", (q) =>
         q.eq("lobbyId", args.lobbyId).eq("awardId", args.awardId)
       )
-      .filter(q => q.eq(q.field("voterName"), args.voterName))
+      .filter((q) => q.eq(q.field("voterName"), args.voterName))
       .first();
 
     if (existingVote) {
@@ -40,34 +41,42 @@ export const getVoteResults = query({
     lobbyId: v.id("lobbies"),
   },
   handler: async (ctx, args) => {
-    const votes = await ctx.db.query("votes")
-      .withIndex("by_lobby_and_award", q => q.eq("lobbyId", args.lobbyId))
+    const votes = await ctx.db
+      .query("votes")
+      .withIndex("by_lobby_and_award", (q) => q.eq("lobbyId", args.lobbyId))
       .collect();
 
-    const friends = await ctx.db.query("friends")
-      .withIndex("by_lobby", q => q.eq("lobbyId", args.lobbyId))
+    const friends = await ctx.db
+      .query("friends")
+      .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
       .collect();
 
-    const awards = await ctx.db.query("awards")
-      .withIndex("by_lobby", q => q.eq("lobbyId", args.lobbyId))
+    const awards = await ctx.db
+      .query("awards")
+      .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
       .collect();
 
     // Group votes by award
-    const votesByAward: Record<string, Array<{ friendId: string; friendName: string; votes: number }>> = {};
+    const votesByAward: Record<
+      string,
+      Array<{ friendId: string; friendName: string; votes: number }>
+    > = {};
 
-    awards.forEach(award => {
-      const awardVotes = votes.filter(v => v.awardId === award._id);
+    awards.forEach((award) => {
+      const awardVotes = votes.filter((v) => v.awardId === award._id);
       const voteCounts: Record<string, number> = {};
 
-      awardVotes.forEach(vote => {
+      awardVotes.forEach((vote) => {
         voteCounts[vote.friendId] = (voteCounts[vote.friendId] || 0) + 1;
       });
 
-      votesByAward[award._id] = friends.map(friend => ({
-        friendId: friend._id,
-        friendName: friend.name,
-        votes: voteCounts[friend._id] || 0,
-      })).sort((a, b) => b.votes - a.votes);
+      votesByAward[award._id] = friends
+        .map((friend) => ({
+          friendId: friend._id,
+          friendName: friend.name,
+          votes: voteCounts[friend._id] || 0,
+        }))
+        .sort((a, b) => b.votes - a.votes);
     });
 
     return { votesByAward, awards, friends };
@@ -79,24 +88,26 @@ export const getVotingProgress = query({
     lobbyId: v.id("lobbies"),
   },
   handler: async (ctx, args) => {
-    const votes = await ctx.db.query("votes")
-      .withIndex("by_lobby_and_award", q => q.eq("lobbyId", args.lobbyId))
+    const votes = await ctx.db
+      .query("votes")
+      .withIndex("by_lobby_and_award", (q) => q.eq("lobbyId", args.lobbyId))
       .collect();
 
-    const awards = await ctx.db.query("awards")
-      .withIndex("by_lobby", q => q.eq("lobbyId", args.lobbyId))
+    const awards = await ctx.db
+      .query("awards")
+      .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
       .collect();
 
     // Count unique voters per award
     const votersByAward: Record<string, Set<string>> = {};
-    votes.forEach(vote => {
+    votes.forEach((vote) => {
       if (!votersByAward[vote.awardId]) {
         votersByAward[vote.awardId] = new Set();
       }
       votersByAward[vote.awardId].add(vote.voterName);
     });
 
-    return awards.map(award => ({
+    return awards.map((award) => ({
       awardId: award._id,
       question: award.question,
       voterCount: votersByAward[award._id]?.size || 0,

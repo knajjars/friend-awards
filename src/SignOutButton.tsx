@@ -12,11 +12,8 @@ export function SignOutButton() {
   }
 
   return (
-    <button
-      className="btn-ghost flex items-center gap-2 text-sm"
-      onClick={() => void signOut()}
-    >
-      <LogOut className="w-4 h-4" />
+    <button className="btn-ghost flex items-center gap-2 text-sm" onClick={() => void signOut()}>
+      <LogOut className="h-4 w-4" />
       Sign out
     </button>
   );

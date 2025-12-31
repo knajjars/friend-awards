@@ -3,8 +3,8 @@ import { query, mutation } from "./_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
 
 function generateShareCode(): string {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  let result = "";
   for (let i = 0; i < 6; i++) {
     result += chars.charAt(Math.floor(Math.random() * chars.length));
   }
@@ -23,7 +23,12 @@ export const createLobby = mutation({
 
     let shareCode = generateShareCode();
     // Ensure unique share code
-    while (await ctx.db.query("lobbies").withIndex("by_share_code", q => q.eq("shareCode", shareCode)).first()) {
+    while (
+      await ctx.db
+        .query("lobbies")
+        .withIndex("by_share_code", (q) => q.eq("shareCode", shareCode))
+        .first()
+    ) {
       shareCode = generateShareCode();
     }
 
@@ -45,8 +50,9 @@ export const getLobbyByShareCode = query({
     shareCode: v.string(),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.query("lobbies")
-      .withIndex("by_share_code", q => q.eq("shareCode", args.shareCode))
+    return await ctx.db
+      .query("lobbies")
+      .withIndex("by_share_code", (q) => q.eq("shareCode", args.shareCode))
       .first();
   },
 });
@@ -68,8 +74,9 @@ export const getUserLobbies = query({
       return [];
     }
 
-    return await ctx.db.query("lobbies")
-      .filter(q => q.eq(q.field("creatorId"), userId))
+    return await ctx.db
+      .query("lobbies")
+      .filter((q) => q.eq(q.field("creatorId"), userId))
       .collect();
   },
 });
@@ -191,7 +198,7 @@ export const deleteLobby = mutation({
 
     // Delete the lobby itself
     await ctx.db.delete(args.lobbyId);
-    
+
     return null;
   },
 });

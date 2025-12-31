@@ -44,13 +44,13 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
           ...defaults,
           particleCount,
           origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-          colors: ['#fbbf24', '#f59e0b', '#fcd34d', '#ffffff']
+          colors: ["#fbbf24", "#f59e0b", "#fcd34d", "#ffffff"],
         });
         confetti({
           ...defaults,
           particleCount,
           origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-          colors: ['#fbbf24', '#f59e0b', '#fcd34d', '#ffffff']
+          colors: ["#fbbf24", "#f59e0b", "#fcd34d", "#ffffff"],
         });
       }, 250);
 
@@ -77,36 +77,36 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight' || e.key === ' ') {
+      if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
         handleNext();
-      } else if (e.key === 'ArrowLeft') {
+      } else if (e.key === "ArrowLeft") {
         e.preventDefault();
         handlePrevious();
-      } else if (e.key === 'Escape') {
+      } else if (e.key === "Escape") {
         handleExit();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [currentSlide, totalSlides]);
 
   if (!lobby || !voteResults) {
     return (
-      <div className="min-h-screen bg-navy-950 flex justify-center items-center">
-        <div className="spinner w-10 h-10" />
+      <div className="flex min-h-screen items-center justify-center bg-navy-950">
+        <div className="spinner h-10 w-10" />
       </div>
     );
   }
 
   if (awards.length === 0) {
     return (
-      <div className="min-h-screen bg-navy-950 flex items-center justify-center p-4">
-        <div className="glass-card p-8 text-center max-w-md">
-          <div className="text-6xl mb-4">📋</div>
-          <h2 className="font-display text-2xl font-semibold text-white mb-2">No Awards Yet</h2>
-          <p className="text-slate-400 mb-6">Add some awards to start the presentation!</p>
+      <div className="flex min-h-screen items-center justify-center bg-navy-950 p-4">
+        <div className="glass-card max-w-md p-8 text-center">
+          <div className="mb-4 text-6xl">📋</div>
+          <h2 className="mb-2 font-display text-2xl font-semibold text-white">No Awards Yet</h2>
+          <p className="mb-6 text-slate-400">Add some awards to start the presentation!</p>
           <Link to="/host" className="btn-primary inline-block">
             Back to Dashboard
           </Link>
@@ -120,17 +120,20 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
   const winner = awardResults[0];
 
   return (
-    <div className="min-h-screen bg-navy-950 text-white relative overflow-hidden flex flex-col">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-navy-950 text-white">
       {/* Animated background effects */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '2s' }} />
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute left-1/4 top-0 h-96 w-96 animate-pulse-slow rounded-full bg-gold-500/10 blur-3xl" />
+        <div
+          className="absolute bottom-0 right-1/4 h-96 w-96 animate-pulse-slow rounded-full bg-amber-500/10 blur-3xl"
+          style={{ animationDelay: "2s" }}
+        />
 
         {/* Star particles */}
         {[...Array(30)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-gold-400 rounded-full opacity-30 animate-sparkle"
+            className="absolute h-1 w-1 animate-sparkle rounded-full bg-gold-400 opacity-30"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -141,45 +144,42 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
       </div>
 
       {/* Header */}
-      <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
-        <button
-          onClick={handleExit}
-          className="btn-ghost flex items-center gap-2"
-        >
-          <ArrowLeft className="w-5 h-5" />
+      <div className="relative z-10 flex items-center justify-between p-4 sm:p-6">
+        <button onClick={handleExit} className="btn-ghost flex items-center gap-2">
+          <ArrowLeft className="h-5 w-5" />
           Exit
         </button>
 
-        <h1 className="font-display text-xl sm:text-2xl font-bold text-gold-gradient hidden sm:block">
+        <h1 className="text-gold-gradient hidden font-display text-xl font-bold sm:block sm:text-2xl">
           {lobby.name}
         </h1>
 
-        <div className="text-sm bg-navy-800/80 backdrop-blur px-4 py-2 rounded-full border border-navy-700">
-          <span className="text-gold-400 font-semibold">{currentSlide + 1}</span>
+        <div className="rounded-full border border-navy-700 bg-navy-800/80 px-4 py-2 text-sm backdrop-blur">
+          <span className="font-semibold text-gold-400">{currentSlide + 1}</span>
           <span className="text-slate-400"> / {totalSlides}</span>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 relative z-10 flex items-center justify-center p-6 sm:p-8">
-        <div className="max-w-4xl w-full text-center">
+      <div className="relative z-10 flex flex-1 items-center justify-center p-6 sm:p-8">
+        <div className="w-full max-w-4xl text-center">
           {!isResultSlide ? (
             // Question Slide
-            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="text-8xl sm:text-9xl mb-8 trophy-animate">🏆</div>
-              <h2 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-8 leading-none text-white">
+            <div className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-500">
+              <div className="trophy-animate mb-8 text-8xl sm:text-9xl">🏆</div>
+              <h2 className="mb-8 font-display text-5xl leading-none text-white sm:text-6xl md:text-7xl lg:text-8xl">
                 {currentAward.question}
               </h2>
-              <div className="text-2xl sm:text-3xl text-slate-400 font-light">
+              <div className="text-2xl font-light text-slate-400 sm:text-3xl">
                 And the winner is...
               </div>
 
               {/* Dramatic pause indicator */}
-              <div className="flex justify-center gap-2 mt-8">
+              <div className="mt-8 flex justify-center gap-2">
                 {[...Array(3)].map((_, i) => (
                   <div
                     key={i}
-                    className="w-3 h-3 rounded-full bg-gold-400 animate-bounce"
+                    className="h-3 w-3 animate-bounce rounded-full bg-gold-400"
                     style={{ animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
@@ -187,10 +187,10 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
             </div>
           ) : (
             // Result Slide
-            <div className="space-y-6 animate-in fade-in zoom-in duration-500">
-              <div className="text-7xl sm:text-8xl mb-6">🎉</div>
+            <div className="animate-in fade-in zoom-in space-y-6 duration-500">
+              <div className="mb-6 text-7xl sm:text-8xl">🎉</div>
 
-              <h2 className="font-display text-3xl sm:text-4xl mb-4 text-slate-300">
+              <h2 className="mb-4 font-display text-3xl text-slate-300 sm:text-4xl">
                 {currentAward.question}
               </h2>
 
@@ -198,35 +198,37 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
                 <div className="space-y-8">
                   {/* Winner Name */}
                   <div className="relative inline-block">
-                    <div className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl text-gold-gradient py-4">
+                    <div className="text-gold-gradient py-4 font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl">
                       {winner.friendName}
                     </div>
                     {/* Glow effect */}
-                    <div className="absolute inset-0 bg-gold-400/20 blur-3xl -z-10" />
+                    <div className="absolute inset-0 -z-10 bg-gold-400/20 blur-3xl" />
                   </div>
 
                   {/* Vote count */}
-                  <div className="flex items-center justify-center gap-3 text-2xl sm:text-3xl text-slate-300">
-                    <Star className="w-6 h-6 text-gold-400 fill-current" />
+                  <div className="flex items-center justify-center gap-3 text-2xl text-slate-300 sm:text-3xl">
+                    <Star className="h-6 w-6 fill-current text-gold-400" />
                     <span>
-                      <span className="text-white font-semibold">{winner.votes}</span>
-                      {' '}vote{winner.votes !== 1 ? 's' : ''}
+                      <span className="font-semibold text-white">{winner.votes}</span> vote
+                      {winner.votes !== 1 ? "s" : ""}
                     </span>
                   </div>
 
                   {/* Runner-ups */}
                   {awardResults.length > 1 && (
-                    <div className="mt-12 pt-8 border-t border-navy-700/50">
-                      <div className="text-sm uppercase tracking-wider text-slate-500 mb-4">Runner-ups</div>
+                    <div className="mt-12 border-t border-navy-700/50 pt-8">
+                      <div className="mb-4 text-sm uppercase tracking-wider text-slate-500">
+                        Runner-ups
+                      </div>
                       <div className="flex flex-wrap justify-center gap-6">
                         {awardResults.slice(1, 3).map((result, index) => (
                           <div
                             key={result.friendId}
-                            className="bg-navy-800/50 backdrop-blur px-6 py-3 rounded-xl border border-navy-700/50"
+                            className="rounded-xl border border-navy-700/50 bg-navy-800/50 px-6 py-3 backdrop-blur"
                           >
-                            <span className="text-slate-400 mr-2">#{index + 2}</span>
-                            <span className="text-white font-medium">{result.friendName}</span>
-                            <span className="text-slate-500 ml-2">({result.votes})</span>
+                            <span className="mr-2 text-slate-400">#{index + 2}</span>
+                            <span className="font-medium text-white">{result.friendName}</span>
+                            <span className="ml-2 text-slate-500">({result.votes})</span>
                           </div>
                         ))}
                       </div>
@@ -234,9 +236,7 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
                   )}
                 </div>
               ) : (
-                <div className="text-3xl sm:text-4xl text-slate-500 font-light">
-                  No votes yet!
-                </div>
+                <div className="text-3xl font-light text-slate-500 sm:text-4xl">No votes yet!</div>
               )}
             </div>
           )}
@@ -244,30 +244,31 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
       </div>
 
       {/* Navigation */}
-      <div className="relative z-10 flex justify-between items-center p-4 sm:p-6">
+      <div className="relative z-10 flex items-center justify-between p-4 sm:p-6">
         <button
           onClick={handlePrevious}
           disabled={currentSlide === 0}
           className="btn-secondary flex items-center gap-2"
         >
-          <ChevronLeft className="w-5 h-5" />
+          <ChevronLeft className="h-5 w-5" />
           <span className="hidden sm:inline">Previous</span>
         </button>
 
         {/* Progress dots */}
-        <div className="flex gap-2 max-w-xs overflow-x-auto px-4">
+        <div className="flex max-w-xs gap-2 overflow-x-auto px-4">
           {[...Array(totalSlides)].map((_, i) => (
             <button
               key={i}
               onClick={async () => {
                 await updateSlide({ lobbyId: lobbyId as Id<"lobbies">, slide: i });
               }}
-              className={`w-2.5 h-2.5 rounded-full flex-shrink-0 transition-all duration-300 ${i === currentSlide
-                ? 'bg-gold-400 scale-125'
-                : i < currentSlide
-                  ? 'bg-gold-400/50'
-                  : 'bg-navy-600 hover:bg-navy-500'
-                }`}
+              className={`h-2.5 w-2.5 flex-shrink-0 rounded-full transition-all duration-300 ${
+                i === currentSlide
+                  ? "scale-125 bg-gold-400"
+                  : i < currentSlide
+                    ? "bg-gold-400/50"
+                    : "hover:bg-navy-500 bg-navy-600"
+              }`}
             />
           ))}
         </div>
@@ -278,17 +279,18 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
           className="btn-primary flex items-center gap-2"
         >
           <span className="hidden sm:inline">
-            {currentSlide >= totalSlides - 1 ? 'Finished' : 'Next'}
+            {currentSlide >= totalSlides - 1 ? "Finished" : "Next"}
           </span>
-          <ChevronRight className="w-5 h-5" />
+          <ChevronRight className="h-5 w-5" />
         </button>
       </div>
 
       {/* Keyboard hints */}
-      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 text-xs text-slate-600 hidden sm:block">
-        Use <kbd className="px-1.5 py-0.5 bg-navy-800 rounded border border-navy-700">←</kbd>{' '}
-        <kbd className="px-1.5 py-0.5 bg-navy-800 rounded border border-navy-700">→</kbd> or{' '}
-        <kbd className="px-1.5 py-0.5 bg-navy-800 rounded border border-navy-700">Space</kbd> to navigate
+      <div className="absolute bottom-20 left-1/2 hidden -translate-x-1/2 text-xs text-slate-600 sm:block">
+        Use <kbd className="rounded border border-navy-700 bg-navy-800 px-1.5 py-0.5">←</kbd>{" "}
+        <kbd className="rounded border border-navy-700 bg-navy-800 px-1.5 py-0.5">→</kbd> or{" "}
+        <kbd className="rounded border border-navy-700 bg-navy-800 px-1.5 py-0.5">Space</kbd> to
+        navigate
       </div>
     </div>
   );

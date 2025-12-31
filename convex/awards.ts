@@ -18,8 +18,9 @@ export const addAward = mutation({
       throw new Error("Not authorized");
     }
 
-    const existingAwards = await ctx.db.query("awards")
-      .withIndex("by_lobby", q => q.eq("lobbyId", args.lobbyId))
+    const existingAwards = await ctx.db
+      .query("awards")
+      .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
       .collect();
 
     return await ctx.db.insert("awards", {
@@ -35,8 +36,9 @@ export const getAwards = query({
     lobbyId: v.id("lobbies"),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.query("awards")
-      .withIndex("by_lobby", q => q.eq("lobbyId", args.lobbyId))
+    return await ctx.db
+      .query("awards")
+      .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
       .collect();
   },
 });
@@ -93,7 +95,7 @@ export const updateNominees = mutation({
     await ctx.db.patch(args.awardId, {
       nomineeIds: args.nomineeIds.length > 0 ? args.nomineeIds : undefined,
     });
-    
+
     return null;
   },
 });

@@ -51,48 +51,42 @@ export function SignInForm() {
             required
           />
         </div>
-        <button 
-          className="auth-button" 
-          type="submit" 
-          disabled={submitting}
-        >
+        <button className="auth-button" type="submit" disabled={submitting}>
           {submitting ? (
             <span className="flex items-center justify-center gap-2">
-              <span className="spinner w-4 h-4" />
+              <span className="spinner h-4 w-4" />
               {flow === "signIn" ? "Signing in..." : "Creating account..."}
             </span>
+          ) : flow === "signIn" ? (
+            "Sign in"
           ) : (
-            flow === "signIn" ? "Sign in" : "Create account"
+            "Create account"
           )}
         </button>
-        
+
         <div className="text-center text-sm text-slate-400">
-          <span>
-            {flow === "signIn"
-              ? "Don't have an account? "
-              : "Already have an account? "}
-          </span>
+          <span>{flow === "signIn" ? "Don't have an account? " : "Already have an account? "}</span>
           <button
             type="button"
-            className="text-gold-400 hover:text-gold-300 hover:underline font-medium cursor-pointer transition-colors"
+            className="cursor-pointer font-medium text-gold-400 transition-colors hover:text-gold-300 hover:underline"
             onClick={() => setFlow(flow === "signIn" ? "signUp" : "signIn")}
           >
             {flow === "signIn" ? "Sign up" : "Sign in"}
           </button>
         </div>
       </form>
-      
-      <div className="flex items-center justify-center my-5">
+
+      <div className="my-5 flex items-center justify-center">
         <hr className="flex-1 border-navy-600" />
-        <span className="mx-4 text-slate-500 text-sm">or continue with</span>
+        <span className="mx-4 text-sm text-slate-500">or continue with</span>
         <hr className="flex-1 border-navy-600" />
       </div>
-      
-      <button 
-        className="btn-secondary w-full flex items-center justify-center gap-2"
+
+      <button
+        className="btn-secondary flex w-full items-center justify-center gap-2"
         onClick={() => void signIn("anonymous")}
       >
-        <User className="w-5 h-5" />
+        <User className="h-5 w-5" />
         Guest access
       </button>
     </div>
