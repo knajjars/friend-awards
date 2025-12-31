@@ -56,10 +56,18 @@ export const getVoteResults = query({
       .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
       .collect();
 
+    // Get image URLs for friends
+    const friendsWithImages = await Promise.all(
+      friends.map(async (friend) => ({
+        ...friend,
+        imageUrl: friend.imageId ? await ctx.storage.getUrl(friend.imageId) : null,
+      }))
+    );
+
     // Group votes by award
     const votesByAward: Record<
       string,
-      Array<{ friendId: string; friendName: string; votes: number }>
+      Array<{ friendId: string; friendName: string; friendImageUrl: string | null; votes: number }>
     > = {};
 
     awards.forEach((award) => {
@@ -70,10 +78,11 @@ export const getVoteResults = query({
         voteCounts[vote.friendId] = (voteCounts[vote.friendId] || 0) + 1;
       });
 
-      votesByAward[award._id] = friends
+      votesByAward[award._id] = friendsWithImages
         .map((friend) => ({
           friendId: friend._id,
           friendName: friend.name,
+          friendImageUrl: friend.imageUrl,
           votes: voteCounts[friend._id] || 0,
         }))
         .sort((a, b) => b.votes - a.votes);

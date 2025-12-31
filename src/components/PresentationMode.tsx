@@ -28,10 +28,70 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
 
   useEffect(() => {
     if (isResultSlide) {
-      // Trigger confetti animation
-      const duration = 3000;
+      const colors = ["#fbbf24", "#f59e0b", "#fcd34d", "#ffffff", "#fef3c7"];
+
+      // Initial BIG burst from center
+      const fireBurst = () => {
+        // Center explosion
+        confetti({
+          particleCount: 100,
+          spread: 100,
+          origin: { x: 0.5, y: 0.5 },
+          colors,
+          startVelocity: 45,
+          gravity: 0.8,
+          ticks: 200,
+          zIndex: 1000,
+        });
+
+        // Left cannon
+        confetti({
+          particleCount: 50,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0, y: 0.65 },
+          colors,
+          startVelocity: 55,
+          gravity: 1,
+          ticks: 200,
+          zIndex: 1000,
+        });
+
+        // Right cannon
+        confetti({
+          particleCount: 50,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1, y: 0.65 },
+          colors,
+          startVelocity: 55,
+          gravity: 1,
+          ticks: 200,
+          zIndex: 1000,
+        });
+      };
+
+      // Fire initial burst immediately
+      fireBurst();
+
+      // Secondary burst after a short delay
+      const secondBurst = setTimeout(() => {
+        confetti({
+          particleCount: 80,
+          spread: 120,
+          origin: { x: 0.5, y: 0.4 },
+          colors,
+          startVelocity: 35,
+          gravity: 0.9,
+          ticks: 150,
+          zIndex: 1000,
+        });
+      }, 300);
+
+      // Continuous rain of confetti
+      const duration = 4000;
       const animationEnd = Date.now() + duration;
-      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+      const defaults = { startVelocity: 30, spread: 360, ticks: 80, zIndex: 1000 };
 
       const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
 
@@ -39,22 +99,25 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
         const timeLeft = animationEnd - Date.now();
         if (timeLeft <= 0) return clearInterval(interval);
 
-        const particleCount = 50 * (timeLeft / duration);
+        const particleCount = 30 * (timeLeft / duration);
         confetti({
           ...defaults,
           particleCount,
           origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-          colors: ["#fbbf24", "#f59e0b", "#fcd34d", "#ffffff"],
+          colors,
         });
         confetti({
           ...defaults,
           particleCount,
           origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-          colors: ["#fbbf24", "#f59e0b", "#fcd34d", "#ffffff"],
+          colors,
         });
-      }, 250);
+      }, 200);
 
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(interval);
+        clearTimeout(secondBurst);
+      };
     }
   }, [isResultSlide, currentSlide]);
 
@@ -117,18 +180,18 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
 
   const currentAward = awards[currentAwardIndex];
   const awardResults = voteResults.votesByAward[currentAward._id] || [];
-  
+
   // Handle ties - find all people with the highest vote count
   const topVoteCount = awardResults[0]?.votes || 0;
   const winners = awardResults.filter((r) => r.votes === topVoteCount && r.votes > 0);
   const isTie = winners.length > 1;
   const hasWinner = winners.length > 0;
-  
+
   // Runner-ups are people who are not in the winners list
   const runnerUps = awardResults.filter((r) => r.votes < topVoteCount && r.votes > 0);
 
   return (
-    <div className="presentation-mode relative flex min-h-screen flex-col overflow-hidden bg-navy-950 text-white safe-area-inset">
+    <div className="presentation-mode safe-area-inset relative flex min-h-screen flex-col overflow-hidden bg-navy-950 text-white">
       {/* Animated background effects */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute left-1/4 top-0 h-64 w-64 animate-pulse-slow rounded-full bg-gold-500/10 blur-3xl sm:h-96 sm:w-96" />
@@ -153,7 +216,10 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between p-3 sm:p-4 md:p-6">
-        <button onClick={handleExit} className="btn-ghost flex items-center gap-1.5 px-2.5 py-2 text-sm sm:gap-2 sm:px-4 sm:text-base">
+        <button
+          onClick={handleExit}
+          className="btn-ghost flex items-center gap-1.5 px-2.5 py-2 text-sm sm:gap-2 sm:px-4 sm:text-base"
+        >
           <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           <span className="hidden xs:inline">Exit</span>
         </button>
@@ -196,16 +262,12 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
           ) : (
             // Result Slide
             <div className="slide-content animate-in fade-in zoom-in space-y-4 duration-700 ease-out sm:space-y-6">
-              <div className="mb-4 text-5xl sm:mb-6 sm:text-7xl md:text-8xl">
-                {isTie ? "🤝" : "🎉"}
-              </div>
-
-              <h2 className="mb-3 font-display text-xl text-slate-300 sm:mb-4 sm:text-3xl md:text-4xl">
+              <h2 className="mb-2 font-display text-xl text-slate-300 sm:mb-4 sm:text-2xl md:text-3xl">
                 {currentAward.question}
               </h2>
 
               {hasWinner ? (
-                <div className="space-y-4 sm:space-y-8">
+                <div className="space-y-4 sm:space-y-6">
                   {/* Tie indicator */}
                   {isTie && (
                     <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-400 sm:text-base">
@@ -214,33 +276,73 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
                     </div>
                   )}
 
-                  {/* Winner Name(s) */}
-                  <div className="relative inline-block">
+                  {/* Winner Avatar(s) + Name(s) */}
+                  <div className="relative">
                     {isTie ? (
-                      // Multiple winners - show them stacked or side by side
-                      <div className="space-y-2 sm:space-y-4">
+                      // Multiple winners - show avatars in a row
+                      <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8">
                         {winners.map((winner, index) => (
                           <div
                             key={winner.friendId}
-                            className="text-gold-gradient py-1 font-display text-3xl sm:py-2 sm:text-5xl md:text-6xl lg:text-7xl"
+                            className="flex flex-col items-center gap-3 sm:gap-4"
                             style={{ animationDelay: `${index * 0.15}s` }}
                           >
-                            {winner.friendName}
+                            {/* Winner Avatar */}
+                            <div className="relative">
+                              {winner.friendImageUrl ? (
+                                <img
+                                  src={winner.friendImageUrl}
+                                  alt={winner.friendName}
+                                  className="h-28 w-28 rounded-full object-cover ring-4 ring-gold-400/50 sm:h-40 sm:w-40 sm:ring-[6px] md:h-48 md:w-48"
+                                />
+                              ) : (
+                                <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/40 to-amber-500/40 ring-4 ring-gold-400/50 sm:h-40 sm:w-40 sm:ring-[6px] md:h-48 md:w-48">
+                                  <span className="font-display text-4xl text-gold-400 sm:text-5xl md:text-6xl">
+                                    {winner.friendName.charAt(0).toUpperCase()}
+                                  </span>
+                                </div>
+                              )}
+                              {/* Glow effect behind avatar */}
+                              <div className="absolute inset-0 -z-10 rounded-full bg-gold-400/30 blur-2xl" />
+                            </div>
+                            {/* Winner Name */}
+                            <div className="text-gold-gradient font-display text-2xl sm:text-3xl md:text-4xl">
+                              {winner.friendName}
+                            </div>
                           </div>
                         ))}
                       </div>
                     ) : (
-                      // Single winner
-                      <div className="text-gold-gradient py-2 font-display text-4xl sm:py-4 sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl">
-                        {winners[0].friendName}
+                      // Single winner - BIG avatar
+                      <div className="flex flex-col items-center gap-4 sm:gap-6">
+                        {/* Winner Avatar */}
+                        <div className="relative">
+                          {winners[0].friendImageUrl ? (
+                            <img
+                              src={winners[0].friendImageUrl}
+                              alt={winners[0].friendName}
+                              className="h-40 w-40 rounded-full object-cover ring-4 ring-gold-400/50 sm:h-56 sm:w-56 sm:ring-[6px] md:h-72 md:w-72 md:ring-8 lg:h-80 lg:w-80"
+                            />
+                          ) : (
+                            <div className="flex h-40 w-40 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/40 to-amber-500/40 ring-4 ring-gold-400/50 sm:h-56 sm:w-56 sm:ring-[6px] md:h-72 md:w-72 md:ring-8 lg:h-80 lg:w-80">
+                              <span className="font-display text-5xl text-gold-400 sm:text-6xl md:text-7xl lg:text-8xl">
+                                {winners[0].friendName.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          {/* Glow effect behind avatar */}
+                          <div className="absolute inset-0 -z-10 scale-110 rounded-full bg-gold-400/30 blur-3xl" />
+                        </div>
+                        {/* Winner Name */}
+                        <div className="text-gold-gradient py-2 font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl">
+                          {winners[0].friendName}
+                        </div>
                       </div>
                     )}
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 -z-10 bg-gold-400/20 blur-3xl" />
                   </div>
 
                   {/* Vote count */}
-                  <div className="flex items-center justify-center gap-2 text-lg text-slate-300 sm:gap-3 sm:text-2xl md:text-3xl">
+                  <div className="flex items-center justify-center gap-2 text-lg text-slate-300 sm:gap-3 sm:text-xl md:text-2xl">
                     <Star className="h-5 w-5 fill-current text-gold-400 sm:h-6 sm:w-6" />
                     <span>
                       <span className="font-semibold text-white">{topVoteCount}</span> vote
@@ -260,7 +362,9 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
                             key={result.friendId}
                             className="rounded-lg border border-navy-700/50 bg-navy-800/50 px-3 py-2 text-sm backdrop-blur sm:rounded-xl sm:px-6 sm:py-3 sm:text-base"
                           >
-                            <span className="mr-1.5 text-slate-400 sm:mr-2">#{index + winners.length + 1}</span>
+                            <span className="mr-1.5 text-slate-400 sm:mr-2">
+                              #{index + winners.length + 1}
+                            </span>
                             <span className="font-medium text-white">{result.friendName}</span>
                             <span className="ml-1.5 text-slate-500 sm:ml-2">({result.votes})</span>
                           </div>
@@ -270,7 +374,9 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
                   )}
                 </div>
               ) : (
-                <div className="text-2xl font-light text-slate-500 sm:text-3xl md:text-4xl">No votes yet!</div>
+                <div className="text-2xl font-light text-slate-500 sm:text-3xl md:text-4xl">
+                  No votes yet!
+                </div>
               )}
             </div>
           )}
@@ -301,7 +407,7 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
                   ? "scale-110 bg-gold-400 sm:scale-125"
                   : i < currentSlide
                     ? "bg-gold-400/50"
-                    : "bg-navy-600 active:bg-navy-500 sm:hover:bg-navy-500"
+                    : "active:bg-navy-500 sm:hover:bg-navy-500 bg-navy-600"
               }`}
             />
           ))}

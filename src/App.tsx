@@ -60,16 +60,21 @@ function Layout({ children }: { children: React.ReactNode }) {
         <div className="from-amber-500/3 absolute -bottom-1/2 -right-1/4 h-full w-full bg-gradient-radial via-transparent to-transparent" />
       </div>
 
-      <header className="sticky top-0 z-50 border-b border-navy-700/50 bg-navy-950/80 backdrop-blur-xl safe-area-top">
+      <header className="safe-area-top sticky top-0 z-50 border-b border-navy-700/50 bg-navy-950/80 backdrop-blur-xl">
         <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
           <Link to="/" className="group flex items-center gap-2 sm:gap-3">
             <span className="trophy-animate text-2xl sm:text-3xl">🏆</span>
-            <span className="text-gold-gradient font-display text-lg sm:text-2xl">Friend Awards</span>
+            <span className="text-gold-gradient font-display text-lg sm:text-2xl">
+              Friend Awards
+            </span>
           </Link>
 
           <div className="flex items-center gap-2 sm:gap-3">
             <Authenticated>
-              <Link to="/host" className="btn-ghost flex items-center gap-1.5 px-2.5 py-2 text-sm sm:gap-2 sm:px-4">
+              <Link
+                to="/host"
+                className="btn-ghost flex items-center gap-1.5 px-2.5 py-2 text-sm sm:gap-2 sm:px-4"
+              >
                 <Menu className="h-4 w-4" />
                 <span className="hidden xs:inline">My Lobbies</span>
               </Link>
@@ -79,7 +84,9 @@ function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="relative z-10 flex-1 px-3 py-6 sm:px-4 sm:py-8 safe-area-bottom">{children}</main>
+      <main className="safe-area-bottom relative z-10 flex-1 px-3 py-6 sm:px-4 sm:py-8">
+        {children}
+      </main>
 
       <Toaster
         theme="dark"
@@ -218,7 +225,11 @@ function HomePage() {
               autoCapitalize="characters"
             />
           </div>
-          <button type="submit" disabled={!joinCode.trim()} className="btn-primary w-full touch-target">
+          <button
+            type="submit"
+            disabled={!joinCode.trim()}
+            className="btn-primary touch-target w-full"
+          >
             Join the Party
           </button>
         </form>
@@ -243,8 +254,12 @@ function HomePage() {
                 <span className="text-2xl sm:text-3xl">✨</span>
               </div>
               <div className="min-w-0">
-                <h3 className="mb-0.5 font-display text-lg text-white sm:mb-1 sm:text-xl md:text-2xl">Host Your Own</h3>
-                <p className="text-sm text-slate-400 sm:text-base">Create and run your own award ceremony</p>
+                <h3 className="mb-0.5 font-display text-lg text-white sm:mb-1 sm:text-xl md:text-2xl">
+                  Host Your Own
+                </h3>
+                <p className="text-sm text-slate-400 sm:text-base">
+                  Create and run your own award ceremony
+                </p>
               </div>
             </div>
             <ChevronRight className="h-5 w-5 flex-shrink-0 text-slate-500 transition-all group-hover:translate-x-1 group-hover:text-gold-400 sm:h-6 sm:w-6" />
@@ -261,7 +276,9 @@ function HomePage() {
         ].map((feature) => (
           <div key={feature.title} className="p-3 text-center sm:p-6">
             <div className="mb-2 text-2xl sm:mb-3 sm:text-4xl">{feature.icon}</div>
-            <h4 className="mb-1 font-display text-sm text-white sm:mb-2 sm:text-lg">{feature.title}</h4>
+            <h4 className="mb-1 font-display text-sm text-white sm:mb-2 sm:text-lg">
+              {feature.title}
+            </h4>
             <p className="text-xs text-slate-500 sm:text-base">{feature.desc}</p>
           </div>
         ))}

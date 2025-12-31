@@ -54,12 +54,14 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
       {/* Section Header */}
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
         <div>
-          <h2 className="mb-1 font-display text-2xl text-white sm:mb-2 sm:text-3xl md:text-4xl">Your Lobbies</h2>
+          <h2 className="mb-1 font-display text-2xl text-white sm:mb-2 sm:text-3xl md:text-4xl">
+            Your Lobbies
+          </h2>
           <p className="text-sm text-slate-400 sm:text-lg">Manage your award ceremonies</p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="btn-primary flex items-center gap-2 touch-target"
+          className="btn-primary touch-target flex items-center gap-2"
         >
           <Plus className="h-5 w-5" />
           Create Lobby
@@ -80,26 +82,30 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
             <form onSubmit={handleCreateLobby} className="space-y-5 sm:space-y-6">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">Lobby Name</label>
-            <input
-              type="text"
+                <input
+                  type="text"
                   placeholder="e.g., Summer Trip Awards 2024"
-              value={lobbyName}
-              onChange={(e) => setLobbyName(e.target.value)}
+                  value={lobbyName}
+                  onChange={(e) => setLobbyName(e.target.value)}
                   className="input-field"
-              autoFocus
-            />
+                  autoFocus
+                />
               </div>
 
-            <div className="flex gap-3">
-              <button
+              <div className="flex gap-3">
+                <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
-                  className="btn-secondary flex-1 touch-target"
+                  className="btn-secondary touch-target flex-1"
                 >
                   Cancel
                 </button>
-                <button type="submit" disabled={!lobbyName.trim()} className="btn-primary flex-1 touch-target">
-                Create
+                <button
+                  type="submit"
+                  disabled={!lobbyName.trim()}
+                  className="btn-primary touch-target flex-1"
+                >
+                  Create
                 </button>
               </div>
             </form>
@@ -128,12 +134,15 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
             </p>
 
             <div className="flex gap-3">
-              <button onClick={() => setDeletingLobby(null)} className="btn-secondary flex-1 touch-target">
+              <button
+                onClick={() => setDeletingLobby(null)}
+                className="btn-secondary touch-target flex-1"
+              >
                 Cancel
               </button>
               <button
                 onClick={handleDeleteLobby}
-                className="flex-1 rounded-xl border border-red-500/30 bg-red-500/20 px-4 py-3 font-semibold text-red-400 transition-all hover:bg-red-500/30 touch-target sm:px-6"
+                className="touch-target flex-1 rounded-xl border border-red-500/30 bg-red-500/20 px-4 py-3 font-semibold text-red-400 transition-all hover:bg-red-500/30 sm:px-6"
               >
                 Delete Lobby
               </button>
@@ -158,8 +167,12 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
         {lobbies.length === 0 && !showCreateForm && (
           <div className="glass-card p-8 text-center sm:p-12">
             <div className="mb-3 text-4xl sm:mb-4 sm:text-5xl">🎭</div>
-            <h3 className="mb-2 font-display text-lg font-semibold text-white sm:text-xl">No lobbies yet</h3>
-            <p className="mb-5 text-sm text-slate-400 sm:mb-6 sm:text-base">Create your first lobby to start the fun!</p>
+            <h3 className="mb-2 font-display text-lg font-semibold text-white sm:text-xl">
+              No lobbies yet
+            </h3>
+            <p className="mb-5 text-sm text-slate-400 sm:mb-6 sm:text-base">
+              Create your first lobby to start the fun!
+            </p>
             <button onClick={() => setShowCreateForm(true)} className="btn-primary touch-target">
               Create Your First Lobby
             </button>
@@ -173,15 +186,15 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
   );
 }
 
-function LobbyCard({ 
-  lobby, 
-  isSelected, 
-  onSelect, 
+function LobbyCard({
+  lobby,
+  isSelected,
+  onSelect,
   onViewPresentation,
   onDelete,
-}: { 
-  lobby: any; 
-  isSelected: boolean; 
+}: {
+  lobby: any;
+  isSelected: boolean;
   onSelect: () => void;
   onViewPresentation: () => void;
   onDelete: () => void;
@@ -193,7 +206,7 @@ function LobbyCard({
   };
 
   return (
-    <div 
+    <div
       className={`glass-card cursor-pointer p-4 transition-all duration-300 active:scale-[0.99] sm:p-6 ${
         isSelected ? "bg-navy-800/70 ring-2 ring-gold-400/50" : ""
       }`}
@@ -210,7 +223,9 @@ function LobbyCard({
               onClick={copyShareCode}
               className="group inline-flex items-center gap-2 rounded-lg border border-navy-600 bg-navy-900/80 px-3 py-2 transition-colors active:bg-navy-800 sm:py-1.5"
             >
-              <span className="font-mono text-sm tracking-wider text-gold-400 sm:text-base">{lobby.shareCode}</span>
+              <span className="font-mono text-sm tracking-wider text-gold-400 sm:text-base">
+                {lobby.shareCode}
+              </span>
               <Copy className="h-4 w-4 text-slate-500 transition-colors group-hover:text-gold-400" />
             </button>
 
@@ -218,12 +233,12 @@ function LobbyCard({
               <span className="badge-success text-xs sm:text-sm">
                 <span className="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 sm:mr-2" />
                 Voting Open
-            </span>
+              </span>
             ) : lobby.isPresentationMode ? (
               <span className="badge-info text-xs sm:text-sm">
                 <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-sky-400 sm:mr-2" />
                 Presenting
-            </span>
+              </span>
             ) : (
               <span className="badge-neutral text-xs sm:text-sm">Setup Mode</span>
             )}
@@ -339,11 +354,11 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
         headers: { "Content-Type": file.type },
         body: file,
       });
-      
+
       if (!result.ok) {
         throw new Error("Upload failed");
       }
-      
+
       const { storageId } = await result.json();
       await updateFriendImage({ friendId: friendId as any, imageId: storageId });
       toast.success("Image uploaded!");
@@ -379,7 +394,9 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
       {/* Header with Actions */}
       <div className="flex flex-col items-start justify-between gap-3 border-b border-navy-700/50 pb-5 sm:flex-row sm:items-center sm:gap-4 sm:pb-6">
         <div>
-          <h3 className="mb-1 font-display text-xl font-semibold text-white sm:text-2xl">{lobby.name}</h3>
+          <h3 className="mb-1 font-display text-xl font-semibold text-white sm:text-2xl">
+            {lobby.name}
+          </h3>
           <p className="text-xs text-slate-400 sm:text-sm">Configure your awards ceremony</p>
         </div>
 
@@ -418,7 +435,9 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
         <div className="flex flex-col">
           <div className="mb-3 flex items-center gap-2 sm:mb-4">
             <span className="text-lg sm:text-xl">👥</span>
-            <h4 className="text-base font-semibold text-white sm:text-lg">Friends ({friends.length})</h4>
+            <h4 className="text-base font-semibold text-white sm:text-lg">
+              Friends ({friends.length})
+            </h4>
           </div>
 
           <form onSubmit={handleAddFriend} className="mb-3 sm:mb-4">
@@ -430,17 +449,16 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
                 onChange={(e) => setNewFriend(e.target.value)}
                 className="input-field flex-1 py-3 text-base"
               />
-              <button
-                type="submit"
-                disabled={!newFriend.trim()}
-                className="btn-primary px-4 py-3"
-              >
+              <button type="submit" disabled={!newFriend.trim()} className="btn-primary px-4 py-3">
                 Add
               </button>
             </div>
           </form>
 
-          <div className="custom-scrollbar -mx-1 min-h-0 flex-1 space-y-2 overflow-y-auto px-1" style={{ maxHeight: "280px" }}>
+          <div
+            className="custom-scrollbar -mx-1 min-h-0 flex-1 space-y-2 overflow-y-auto px-1"
+            style={{ maxHeight: "280px" }}
+          >
             {friends.map((friend) => (
               <FriendItem
                 key={friend._id}
@@ -461,7 +479,9 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
         <div className="flex flex-col">
           <div className="mb-3 flex items-center gap-2 sm:mb-4">
             <span className="text-lg sm:text-xl">🏆</span>
-            <h4 className="text-base font-semibold text-white sm:text-lg">Awards ({awards.length})</h4>
+            <h4 className="text-base font-semibold text-white sm:text-lg">
+              Awards ({awards.length})
+            </h4>
           </div>
 
           <form onSubmit={handleAddAward} className="mb-3 sm:mb-4">
@@ -479,7 +499,10 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
             </div>
           </form>
 
-          <div className="custom-scrollbar -mx-1 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 sm:space-y-3" style={{ maxHeight: "280px" }}>
+          <div
+            className="custom-scrollbar -mx-1 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 sm:space-y-3"
+            style={{ maxHeight: "280px" }}
+          >
             {awards.map((award) => {
               const progress = votingProgress.find((p) => p.awardId === award._id);
               return (
@@ -727,12 +750,12 @@ function AwardItem({
   );
 }
 
-function FriendItem({ 
-  friend, 
-  onRemove, 
+function FriendItem({
+  friend,
+  onRemove,
   onImageUpload,
-}: { 
-  friend: any; 
+}: {
+  friend: any;
   onRemove: () => void;
   onImageUpload: (file: File) => void;
 }) {
@@ -741,8 +764,8 @@ function FriendItem({
       <div className="flex items-center gap-3">
         <div className="flex-shrink-0">
           {friend.imageUrl ? (
-            <img 
-              src={friend.imageUrl} 
+            <img
+              src={friend.imageUrl}
               alt={friend.name}
               className="h-10 w-10 rounded-full object-cover ring-2 ring-navy-600"
             />
@@ -755,7 +778,9 @@ function FriendItem({
           )}
         </div>
 
-        <span className="flex-1 truncate text-sm font-medium text-slate-200 sm:text-base">{friend.name}</span>
+        <span className="flex-1 truncate text-sm font-medium text-slate-200 sm:text-base">
+          {friend.name}
+        </span>
 
         <div className="flex gap-1 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
           <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors active:bg-navy-600 sm:h-8 sm:w-8 sm:hover:bg-navy-700">

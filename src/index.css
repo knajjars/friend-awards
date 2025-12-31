@@ -631,7 +631,8 @@ button,
 
 /* Pulse animation for loading states */
 @keyframes pulse-slow {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.4;
   }
   50% {
@@ -650,22 +651,22 @@ button,
     transform: scale(0.98);
     box-shadow: 0 5px 10px -3px rgba(251, 191, 36, 0.3);
   }
-  
+
   .btn-secondary:active {
     transform: scale(0.98);
     background: rgba(40, 46, 82, 0.9);
   }
-  
+
   .glass-card:active {
     transform: scale(0.995);
   }
-  
+
   /* Disable hover lift on touch devices */
   .hover-lift:hover {
     transform: none;
     box-shadow: none;
   }
-  
+
   .hover-lift:active {
     transform: scale(0.98);
   }

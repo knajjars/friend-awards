@@ -12,9 +12,10 @@ interface VotingPageProps {
 
 export function VotingPage({ shareCode }: VotingPageProps) {
   const navigate = useNavigate();
+  const [voterId, setVoterId] = useState<string | null>(null);
   const [voterName, setVoterName] = useState("");
   const [currentAwardIndex, setCurrentAwardIndex] = useState(0);
-  const [hasSetName, setHasSetName] = useState(false);
+  const [hasSelectedIdentity, setHasSelectedIdentity] = useState(false);
   const [votedAwards, setVotedAwards] = useState<Set<string>>(new Set());
 
   const lobby = useQuery(api.lobbies.getLobbyByShareCode, { shareCode });
@@ -23,25 +24,42 @@ export function VotingPage({ shareCode }: VotingPageProps) {
 
   const castVote = useMutation(api.votes.castVote);
 
-  // Load voter name from localStorage
+  // Load voter identity from localStorage
   useEffect(() => {
-    const savedName = localStorage.getItem(`voter-name-${shareCode}`);
-    if (savedName) {
-      setVoterName(savedName);
-      setHasSetName(true);
+    const savedVoterId = localStorage.getItem(`voter-id-${shareCode}`);
+    const savedVoterName = localStorage.getItem(`voter-name-${shareCode}`);
+    if (savedVoterId && savedVoterName) {
+      setVoterId(savedVoterId);
+      setVoterName(savedVoterName);
+      setHasSelectedIdentity(true);
     }
   }, [shareCode]);
 
-  const handleSetName = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!voterName.trim()) return;
+  // Verify that saved voter is still in the friends list
+  useEffect(() => {
+    if (hasSelectedIdentity && voterId && friends.length > 0) {
+      const voterStillExists = friends.some((f) => f._id === voterId);
+      if (!voterStillExists) {
+        // Clear saved identity if friend was removed
+        localStorage.removeItem(`voter-id-${shareCode}`);
+        localStorage.removeItem(`voter-name-${shareCode}`);
+        setVoterId(null);
+        setVoterName("");
+        setHasSelectedIdentity(false);
+      }
+    }
+  }, [hasSelectedIdentity, voterId, friends, shareCode]);
 
-    localStorage.setItem(`voter-name-${shareCode}`, voterName.trim());
-    setHasSetName(true);
+  const handleSelectIdentity = (friendId: string, friendName: string) => {
+    localStorage.setItem(`voter-id-${shareCode}`, friendId);
+    localStorage.setItem(`voter-name-${shareCode}`, friendName);
+    setVoterId(friendId);
+    setVoterName(friendName);
+    setHasSelectedIdentity(true);
   };
 
   const handleVote = async (friendId: string) => {
-    if (!lobby || !hasSetName) return;
+    if (!lobby || !hasSelectedIdentity) return;
 
     const currentAward = awards[currentAwardIndex];
     if (!currentAward) return;
@@ -103,39 +121,69 @@ export function VotingPage({ shareCode }: VotingPageProps) {
     );
   }
 
-  // Name Entry
-  if (!hasSetName) {
+  // Identity Selection - Pick from friends list
+  if (!hasSelectedIdentity) {
     return (
-      <div className="mx-auto mt-12 max-w-md">
-        <div className="glass-card-highlight p-8">
-          <div className="mb-6 text-center">
+      <div className="mx-auto mt-8 max-w-md sm:mt-12">
+        <div className="glass-card-highlight p-6 sm:p-8">
+          <div className="mb-6 text-center sm:mb-8">
             <div className="mb-3 text-5xl">👋</div>
-            <h2 className="mb-1 font-display text-2xl font-semibold text-white">{lobby.name}</h2>
-            <p className="text-slate-400">Welcome! Let's get you set up.</p>
+            <h2 className="mb-1 font-display text-xl font-semibold text-white sm:text-2xl">
+              {lobby.name}
+            </h2>
+            <p className="text-sm text-slate-400 sm:text-base">
+              Who are you? Select yourself to start voting.
+            </p>
           </div>
 
-          <form onSubmit={handleSetName} className="space-y-5">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-300">
-                What's your name?
-              </label>
-              <input
-                type="text"
-                placeholder="Enter your name"
-                value={voterName}
-                onChange={(e) => setVoterName(e.target.value)}
-                className="input-field text-center text-lg"
-                autoFocus
-              />
+          {friends.length === 0 ? (
+            <div className="py-8 text-center">
+              <div className="mb-3 text-4xl">🤷</div>
+              <p className="text-slate-400">No friends added to this lobby yet.</p>
+              <p className="mt-2 text-sm text-slate-500">Ask the host to add participants first!</p>
             </div>
-            <button
-              type="submit"
-              disabled={!voterName.trim()}
-              className="btn-primary w-full text-lg"
-            >
-              Start Voting
-            </button>
-          </form>
+          ) : (
+            <div className="space-y-2 sm:space-y-3">
+              <label className="mb-3 block text-sm font-medium text-slate-300">
+                Select yourself:
+              </label>
+              <div className="custom-scrollbar max-h-[50vh] space-y-2 overflow-y-auto pr-1 sm:space-y-3">
+                {friends.map((friend) => (
+                  <button
+                    key={friend._id}
+                    onClick={() => handleSelectIdentity(friend._id, friend.name)}
+                    className="group flex w-full items-center gap-3 rounded-xl border border-navy-600 bg-navy-800/80 p-3 text-left transition-all duration-200 active:scale-[0.98] active:bg-gold-500/10 sm:gap-4 sm:p-4 sm:hover:border-gold-400/30 sm:hover:bg-gradient-to-r sm:hover:from-gold-500/20 sm:hover:to-amber-500/20"
+                  >
+                    {/* Avatar */}
+                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 transition-all group-hover:from-gold-500/50 group-hover:to-amber-500/50 sm:h-14 sm:w-14">
+                      {friend.imageUrl ? (
+                        <img
+                          src={friend.imageUrl}
+                          alt={friend.name}
+                          className="h-full w-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-lg font-semibold text-gold-400 sm:text-xl">
+                          {friend.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1">
+                      <span className="block truncate text-base font-medium text-slate-200 group-hover:text-white sm:text-lg">
+                        {friend.name}
+                      </span>
+                      <span className="text-xs text-slate-500 sm:text-sm">
+                        Tap to continue as {friend.name}
+                      </span>
+                    </div>
+
+                    <ChevronRight className="h-5 w-5 flex-shrink-0 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-gold-400" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -163,9 +211,11 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   const hasVotedCurrent = votedAwards.has(currentAward?._id);
 
   // Get nominees for current award (if specific nominees are set, use them; otherwise all friends)
+  // Exclude the voter from the nominees list (can't vote for yourself)
   const nomineeIds = currentAward?.nomineeIds || [];
-  const currentNominees =
+  const allNominees =
     nomineeIds.length > 0 ? friends.filter((f) => nomineeIds.includes(f._id)) : friends;
+  const currentNominees = allNominees.filter((f) => f._id !== voterId);
 
   // Completion Screen
   if (isComplete) {
@@ -187,7 +237,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-2xl pb-safe">
+    <div className="pb-safe mx-auto max-w-2xl">
       {/* Progress Header */}
       <div className="mb-5 sm:mb-8">
         <div className="mb-2 flex items-center justify-between text-xs sm:mb-3 sm:text-sm">
@@ -195,7 +245,26 @@ export function VotingPage({ shareCode }: VotingPageProps) {
             Award <span className="font-semibold text-white">{currentAwardIndex + 1}</span> of{" "}
             {awards.length}
           </span>
-          <span className="max-w-[120px] truncate font-medium text-gold-400 sm:max-w-none">{voterName}</span>
+          <button
+            onClick={() => {
+              localStorage.removeItem(`voter-id-${shareCode}`);
+              localStorage.removeItem(`voter-name-${shareCode}`);
+              setVoterId(null);
+              setVoterName("");
+              setHasSelectedIdentity(false);
+              setVotedAwards(new Set());
+              setCurrentAwardIndex(0);
+            }}
+            className="group flex items-center gap-1.5 rounded-lg px-2 py-1 transition-colors hover:bg-navy-800"
+            title="Change identity"
+          >
+            <span className="max-w-[100px] truncate font-medium text-gold-400 sm:max-w-[150px]">
+              {voterName}
+            </span>
+            <span className="text-[10px] text-slate-500 group-hover:text-slate-400 sm:text-xs">
+              change
+            </span>
+          </button>
         </div>
 
         {/* Progress Bar */}
@@ -217,7 +286,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
                   ? "scale-110 bg-gold-400 sm:scale-125"
                   : votedAwards.has(award._id)
                     ? "bg-emerald-500"
-                    : "bg-navy-600 active:bg-navy-500 sm:hover:bg-navy-500"
+                    : "active:bg-navy-500 sm:hover:bg-navy-500 bg-navy-600"
               }`}
             />
           ))}
@@ -266,7 +335,11 @@ export function VotingPage({ shareCode }: VotingPageProps) {
         </div>
 
         {currentNominees.length === 0 && (
-          <p className="py-4 text-sm text-slate-500 sm:text-base">No nominees assigned for this award.</p>
+          <p className="py-4 text-sm text-slate-500 sm:text-base">
+            {allNominees.length === 0
+              ? "No nominees assigned for this award."
+              : "No other nominees to vote for in this category."}
+          </p>
         )}
 
         {hasVotedCurrent && (
