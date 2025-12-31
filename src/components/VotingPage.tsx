@@ -87,14 +87,16 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   // Error/Loading States
   if (!lobby) {
     return (
-      <div className="mx-auto mt-12 max-w-md">
-        <div className="glass-card p-8 text-center">
-          <div className="mb-4 text-6xl">🔍</div>
-          <h2 className="mb-3 font-display text-2xl font-semibold text-white">Lobby Not Found</h2>
-          <p className="mb-6 text-slate-400">
+      <div className="mx-auto mt-8 max-w-md px-4 sm:mt-12 sm:px-6">
+        <div className="glass-card p-6 text-center sm:p-8">
+          <div className="mb-4 text-5xl sm:text-6xl">🔍</div>
+          <h2 className="mb-3 font-display text-xl font-semibold text-white sm:text-2xl">
+            Lobby Not Found
+          </h2>
+          <p className="mb-6 text-sm text-slate-400 sm:text-base">
             The lobby code "{shareCode}" doesn't exist or has expired.
           </p>
-          <Link to="/" className="btn-primary inline-block">
+          <Link to="/" className="btn-primary inline-block px-6 py-3">
             Back to Home
           </Link>
         </div>
@@ -104,16 +106,18 @@ export function VotingPage({ shareCode }: VotingPageProps) {
 
   if (!lobby.isVotingOpen) {
     return (
-      <div className="mx-auto mt-12 max-w-md">
-        <div className="glass-card p-8 text-center">
-          <div className="mb-4 animate-pulse text-6xl">⏳</div>
-          <h2 className="mb-2 font-display text-2xl font-semibold text-white">{lobby.name}</h2>
-          <p className="mb-6 text-slate-400">
+      <div className="mx-auto mt-8 max-w-md px-4 sm:mt-12 sm:px-6">
+        <div className="glass-card p-6 text-center sm:p-8">
+          <div className="mb-4 animate-pulse text-5xl sm:text-6xl">⏳</div>
+          <h2 className="mb-2 font-display text-xl font-semibold text-white sm:text-2xl">
+            {lobby.name}
+          </h2>
+          <p className="mb-6 text-sm text-slate-400 sm:text-base">
             {lobby.isPresentationMode
               ? "This lobby is revealing winners! Check back later for the next round."
               : "Voting hasn't started yet. The host will open voting soon!"}
           </p>
-          <Link to="/" className="btn-secondary inline-block">
+          <Link to="/" className="btn-secondary inline-block px-6 py-3">
             Back to Home
           </Link>
         </div>
@@ -124,11 +128,11 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   // Identity Selection - Pick from friends list
   if (!hasSelectedIdentity) {
     return (
-      <div className="mx-auto mt-8 max-w-md sm:mt-12">
-        <div className="glass-card-highlight p-6 sm:p-8">
-          <div className="mb-6 text-center sm:mb-8">
-            <div className="mb-3 text-5xl">👋</div>
-            <h2 className="mb-1 font-display text-xl font-semibold text-white sm:text-2xl">
+      <div className="mx-auto mt-4 max-w-md px-4 sm:mt-8 sm:px-6">
+        <div className="glass-card-highlight p-5 sm:p-6 md:p-8">
+          <div className="mb-5 text-center sm:mb-6">
+            <div className="mb-3 text-4xl sm:text-5xl">👋</div>
+            <h2 className="mb-1 font-display text-lg font-semibold text-white sm:text-xl md:text-2xl">
               {lobby.name}
             </h2>
             <p className="text-sm text-slate-400 sm:text-base">
@@ -137,17 +141,21 @@ export function VotingPage({ shareCode }: VotingPageProps) {
           </div>
 
           {friends.length === 0 ? (
-            <div className="py-8 text-center">
-              <div className="mb-3 text-4xl">🤷</div>
-              <p className="text-slate-400">No friends added to this lobby yet.</p>
-              <p className="mt-2 text-sm text-slate-500">Ask the host to add participants first!</p>
+            <div className="py-6 text-center sm:py-8">
+              <div className="mb-3 text-3xl sm:text-4xl">🤷</div>
+              <p className="text-sm text-slate-400 sm:text-base">
+                No friends added to this lobby yet.
+              </p>
+              <p className="mt-2 text-xs text-slate-500 sm:text-sm">
+                Ask the host to add participants first!
+              </p>
             </div>
           ) : (
-            <div className="space-y-2 sm:space-y-3">
-              <label className="mb-3 block text-sm font-medium text-slate-300">
+            <div className="space-y-2">
+              <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-slate-400 sm:mb-3 sm:text-sm">
                 Select yourself:
               </label>
-              <div className="custom-scrollbar max-h-[50vh] space-y-2 overflow-y-auto pr-1 sm:space-y-3">
+              <div className="custom-scrollbar -mx-1 max-h-[55vh] space-y-2 overflow-y-auto px-1 sm:max-h-[50vh]">
                 {friends.map((friend) => (
                   <button
                     key={friend._id}
@@ -155,7 +163,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
                     className="group flex w-full items-center gap-3 rounded-xl border border-navy-600 bg-navy-800/80 p-3 text-left transition-all duration-200 active:scale-[0.98] active:bg-gold-500/10 sm:gap-4 sm:p-4 sm:hover:border-gold-400/30 sm:hover:bg-gradient-to-r sm:hover:from-gold-500/20 sm:hover:to-amber-500/20"
                   >
                     {/* Avatar */}
-                    <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 transition-all group-hover:from-gold-500/50 group-hover:to-amber-500/50 sm:h-14 sm:w-14">
+                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 transition-all group-hover:from-gold-500/50 group-hover:to-amber-500/50 sm:h-12 sm:w-12">
                       {friend.imageUrl ? (
                         <img
                           src={friend.imageUrl}
@@ -163,19 +171,17 @@ export function VotingPage({ shareCode }: VotingPageProps) {
                           className="h-full w-full rounded-full object-cover"
                         />
                       ) : (
-                        <span className="text-lg font-semibold text-gold-400 sm:text-xl">
+                        <span className="text-base font-semibold text-gold-400 sm:text-lg">
                           {friend.name.charAt(0).toUpperCase()}
                         </span>
                       )}
                     </div>
 
                     <div className="min-w-0 flex-1">
-                      <span className="block truncate text-base font-medium text-slate-200 group-hover:text-white sm:text-lg">
+                      <span className="block truncate text-sm font-medium text-slate-200 group-hover:text-white sm:text-base">
                         {friend.name}
                       </span>
-                      <span className="text-xs text-slate-500 sm:text-sm">
-                        Tap to continue as {friend.name}
-                      </span>
+                      <span className="text-xs text-slate-500">Tap to continue</span>
                     </div>
 
                     <ChevronRight className="h-5 w-5 flex-shrink-0 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-gold-400" />
@@ -192,12 +198,16 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   // No Awards
   if (awards.length === 0) {
     return (
-      <div className="mx-auto mt-12 max-w-md">
-        <div className="glass-card p-8 text-center">
-          <div className="mb-4 text-6xl">📋</div>
-          <h2 className="mb-2 font-display text-2xl font-semibold text-white">{lobby.name}</h2>
-          <p className="mb-6 text-slate-400">No awards have been set up yet!</p>
-          <Link to="/" className="btn-secondary inline-block">
+      <div className="mx-auto mt-8 max-w-md px-4 sm:mt-12 sm:px-6">
+        <div className="glass-card p-6 text-center sm:p-8">
+          <div className="mb-4 text-5xl sm:text-6xl">📋</div>
+          <h2 className="mb-2 font-display text-xl font-semibold text-white sm:text-2xl">
+            {lobby.name}
+          </h2>
+          <p className="mb-6 text-sm text-slate-400 sm:text-base">
+            No awards have been set up yet!
+          </p>
+          <Link to="/" className="btn-secondary inline-block px-6 py-3">
             Back to Home
           </Link>
         </div>
@@ -220,15 +230,19 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   // Completion Screen
   if (isComplete) {
     return (
-      <div className="mx-auto mt-12 max-w-md">
-        <div className="glass-card-highlight p-10 text-center sm:p-12">
-          <div className="trophy-animate mb-6 text-8xl">🎉</div>
-          <h2 className="mb-4 font-display text-4xl text-white sm:text-5xl">All Done!</h2>
-          <p className="mb-2 text-xl text-slate-300">
+      <div className="mx-auto mt-8 max-w-md px-4 sm:mt-12 sm:px-6">
+        <div className="glass-card-highlight p-6 text-center sm:p-8 md:p-10">
+          <div className="trophy-animate mb-4 text-6xl sm:mb-6 sm:text-7xl md:text-8xl">🎉</div>
+          <h2 className="mb-3 font-display text-3xl text-white sm:mb-4 sm:text-4xl md:text-5xl">
+            All Done!
+          </h2>
+          <p className="mb-2 text-base text-slate-300 sm:text-lg md:text-xl">
             Thanks for voting, <span className="font-semibold text-gold-400">{voterName}</span>!
           </p>
-          <p className="mb-10 text-lg text-slate-400">The host will reveal the results soon.</p>
-          <Link to="/" className="btn-primary inline-block">
+          <p className="mb-6 text-sm text-slate-400 sm:mb-8 sm:text-base md:text-lg">
+            The host will reveal the results soon.
+          </p>
+          <Link to="/" className="btn-primary inline-block px-6 py-3">
             Back to Home
           </Link>
         </div>
@@ -237,9 +251,9 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   }
 
   return (
-    <div className="pb-safe mx-auto max-w-2xl">
+    <div className="mx-auto max-w-2xl px-4 pb-24 sm:px-6 sm:pb-8">
       {/* Progress Header */}
-      <div className="mb-5 sm:mb-8">
+      <div className="mb-4 sm:mb-6">
         <div className="mb-2 flex items-center justify-between text-xs sm:mb-3 sm:text-sm">
           <span className="text-slate-400">
             Award <span className="font-semibold text-white">{currentAwardIndex + 1}</span> of{" "}
@@ -255,10 +269,10 @@ export function VotingPage({ shareCode }: VotingPageProps) {
               setVotedAwards(new Set());
               setCurrentAwardIndex(0);
             }}
-            className="group flex items-center gap-1.5 rounded-lg px-2 py-1 transition-colors hover:bg-navy-800"
+            className="group flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-colors active:bg-navy-800 sm:hover:bg-navy-800"
             title="Change identity"
           >
-            <span className="max-w-[100px] truncate font-medium text-gold-400 sm:max-w-[150px]">
+            <span className="max-w-[90px] truncate text-sm font-medium text-gold-400 sm:max-w-[150px]">
               {voterName}
             </span>
             <span className="text-[10px] text-slate-500 group-hover:text-slate-400 sm:text-xs">
@@ -268,7 +282,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
         </div>
 
         {/* Progress Bar */}
-        <div className="h-1 overflow-hidden rounded-full bg-navy-800 sm:h-1.5">
+        <div className="h-1.5 overflow-hidden rounded-full bg-navy-800">
           <div
             className="h-full rounded-full bg-gradient-to-r from-gold-500 to-amber-400 transition-all duration-500 ease-out"
             style={{ width: `${((currentAwardIndex + 1) / awards.length) * 100}%` }}
@@ -281,9 +295,9 @@ export function VotingPage({ shareCode }: VotingPageProps) {
             <button
               key={award._id}
               onClick={() => setCurrentAwardIndex(i)}
-              className={`h-3 w-3 flex-shrink-0 rounded-full transition-all duration-300 sm:h-2 sm:w-2 ${
+              className={`h-2.5 w-2.5 flex-shrink-0 rounded-full transition-all duration-300 sm:h-2 sm:w-2 ${
                 i === currentAwardIndex
-                  ? "scale-110 bg-gold-400 sm:scale-125"
+                  ? "scale-125 bg-gold-400"
                   : votedAwards.has(award._id)
                     ? "bg-emerald-500"
                     : "active:bg-navy-500 sm:hover:bg-navy-500 bg-navy-600"
@@ -294,10 +308,10 @@ export function VotingPage({ shareCode }: VotingPageProps) {
       </div>
 
       {/* Award Card */}
-      <div className="glass-card-highlight mb-4 p-5 text-center sm:mb-6 sm:p-8 md:p-10">
-        <div className="trophy-animate mb-4 text-5xl sm:mb-6 sm:text-6xl">🏆</div>
+      <div className="glass-card-highlight mb-4 p-4 text-center sm:mb-6 sm:p-6 md:p-8">
+        <div className="trophy-animate mb-3 text-4xl sm:mb-4 sm:text-5xl md:text-6xl">🏆</div>
 
-        <h2 className="mb-6 font-display text-2xl leading-tight text-white sm:mb-10 sm:text-3xl md:text-4xl lg:text-5xl">
+        <h2 className="mb-4 font-display text-xl leading-tight text-white sm:mb-6 sm:text-2xl md:text-3xl lg:text-4xl">
           {currentAward.question}
         </h2>
 
@@ -308,14 +322,14 @@ export function VotingPage({ shareCode }: VotingPageProps) {
               key={friend._id}
               onClick={() => handleVote(friend._id)}
               disabled={hasVotedCurrent}
-              className={`group flex w-full items-center justify-center gap-2 rounded-xl p-3.5 text-base font-medium transition-all duration-200 sm:gap-3 sm:p-4 sm:text-lg ${
+              className={`group flex w-full items-center justify-center gap-2.5 rounded-xl p-3 text-sm font-medium transition-all duration-200 sm:gap-3 sm:p-4 sm:text-base ${
                 hasVotedCurrent
                   ? "cursor-not-allowed bg-navy-800/50 text-slate-500"
                   : "border border-navy-600 bg-navy-800/80 text-slate-200 active:scale-[0.98] active:bg-gold-500/10 sm:hover:scale-[1.02] sm:hover:border-gold-400/30 sm:hover:bg-gradient-to-r sm:hover:from-gold-500/20 sm:hover:to-amber-500/20 sm:hover:text-white sm:hover:shadow-lg sm:hover:shadow-gold-500/10"
               }`}
             >
               {/* Avatar */}
-              <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 transition-all group-hover:from-gold-500/50 group-hover:to-amber-500/50 sm:h-10 sm:w-10">
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 transition-all group-hover:from-gold-500/50 group-hover:to-amber-500/50 sm:h-10 sm:w-10">
                 {friend.imageUrl ? (
                   <img
                     src={friend.imageUrl}
@@ -343,7 +357,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
         )}
 
         {hasVotedCurrent && (
-          <div className="mt-4 flex items-center justify-center gap-2 text-emerald-400 sm:mt-6">
+          <div className="mt-4 flex items-center justify-center gap-2 text-emerald-400">
             <Check className="h-4 w-4 sm:h-5 sm:w-5" />
             <span className="text-sm font-medium sm:text-base">Vote recorded!</span>
           </div>
@@ -351,21 +365,21 @@ export function VotingPage({ shareCode }: VotingPageProps) {
       </div>
 
       {/* Navigation - fixed on mobile */}
-      <div className="sticky bottom-0 -mx-3 flex justify-between gap-3 bg-gradient-to-t from-navy-950 via-navy-950 to-transparent px-3 pb-4 pt-6 sm:relative sm:mx-0 sm:gap-4 sm:bg-none sm:p-0">
+      <div className="fixed bottom-0 left-0 right-0 z-20 flex justify-between gap-3 border-t border-navy-800/50 bg-navy-950/95 px-4 py-3 backdrop-blur-lg sm:relative sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
         <button
           onClick={() => setCurrentAwardIndex(Math.max(0, currentAwardIndex - 1))}
           disabled={currentAwardIndex === 0}
-          className="btn-secondary flex flex-1 items-center justify-center gap-1.5 py-3 sm:flex-none sm:gap-2 sm:py-4"
+          className="btn-secondary flex flex-1 items-center justify-center gap-1.5 py-2.5 text-sm sm:flex-none sm:gap-2 sm:py-3 sm:text-base"
         >
           <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-          <span className="text-sm sm:text-base">Previous</span>
+          <span>Previous</span>
         </button>
 
         <button
           onClick={() => setCurrentAwardIndex(Math.min(awards.length, currentAwardIndex + 1))}
-          className="btn-primary flex flex-1 items-center justify-center gap-1.5 py-3 sm:flex-none sm:gap-2 sm:py-4"
+          className="btn-primary flex flex-1 items-center justify-center gap-1.5 py-2.5 text-sm sm:flex-none sm:gap-2 sm:py-3 sm:text-base"
         >
-          <span className="text-sm sm:text-base">{isLastAward ? "Finish" : "Next"}</span>
+          <span>{isLastAward ? "Finish" : "Next"}</span>
           <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
       </div>
