@@ -36,8 +36,23 @@ export default {
         },
       },
       fontFamily: {
-        display: ["Playfair Display", "Georgia", "serif"],
-        body: ["Outfit", "system-ui", "sans-serif"],
+        display: ["Sora", "system-ui", "sans-serif"],
+        body: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
+      },
+      fontSize: {
+        // Bigger scale
+        'xs': ['0.8rem', { lineHeight: '1.2' }],
+        'sm': ['0.925rem', { lineHeight: '1.4' }],
+        'base': ['1.0625rem', { lineHeight: '1.6' }],
+        'lg': ['1.2rem', { lineHeight: '1.5' }],
+        'xl': ['1.375rem', { lineHeight: '1.4' }],
+        '2xl': ['1.625rem', { lineHeight: '1.3' }],
+        '3xl': ['2rem', { lineHeight: '1.2' }],
+        '4xl': ['2.5rem', { lineHeight: '1.1' }],
+        '5xl': ['3.25rem', { lineHeight: '1.05' }],
+        '6xl': ['4rem', { lineHeight: '1' }],
+        '7xl': ['5rem', { lineHeight: '1' }],
+        '8xl': ['6.5rem', { lineHeight: '0.95' }],
       },
       spacing: {
         section: "2rem",

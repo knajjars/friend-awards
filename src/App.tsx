@@ -7,6 +7,7 @@ import { useState, useEffect } from "react";
 import { LobbyDashboard } from "./components/LobbyDashboard";
 import { VotingPage } from "./components/VotingPage";
 import { PresentationMode } from "./components/PresentationMode";
+import { useConvexAuth } from "convex/react";
 
 // Generate random stars for background
 function StarField() {
@@ -42,10 +43,13 @@ function StarField() {
   );
 }
 
+type ViewType = "home" | "voting" | "presentation" | "signin" | "host";
+
 export default function App() {
   const [shareCode, setShareCode] = useState("");
-  const [currentView, setCurrentView] = useState<"home" | "voting" | "presentation">("home");
+  const [currentView, setCurrentView] = useState<ViewType>("home");
   const [lobbyId, setLobbyId] = useState<string>("");
+  const { isAuthenticated } = useConvexAuth();
 
   const handleJoinLobby = (code: string) => {
     setShareCode(code);
@@ -63,6 +67,21 @@ export default function App() {
     setLobbyId("");
   };
 
+  const handleHostClick = () => {
+    if (isAuthenticated) {
+      setCurrentView("host");
+    } else {
+      setCurrentView("signin");
+    }
+  };
+
+  // If user signs in while on signin page, redirect to host
+  useEffect(() => {
+    if (isAuthenticated && currentView === "signin") {
+      setCurrentView("host");
+    }
+  }, [isAuthenticated, currentView]);
+
   return (
     <div className="min-h-screen flex flex-col bg-navy-950 relative">
       <StarField />
@@ -79,18 +98,42 @@ export default function App() {
             onClick={handleBackToHome}
             className="flex items-center gap-3 group"
           >
-            <span className="text-2xl trophy-animate">🏆</span>
-            <span className="font-display text-xl font-semibold text-gold-gradient tracking-tight">
+            <span className="text-3xl trophy-animate">🏆</span>
+            <span className="font-display text-2xl text-gold-gradient">
               Friend Awards
             </span>
           </button>
-          <SignOutButton />
+          
+          <div className="flex items-center gap-3">
+            <Authenticated>
+              {currentView !== "host" && (
+                <button
+                  onClick={() => setCurrentView("host")}
+                  className="btn-ghost text-sm hidden sm:flex items-center gap-2"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h7" />
+                  </svg>
+                  My Lobbies
+                </button>
+              )}
+              <SignOutButton />
+            </Authenticated>
+          </div>
         </div>
       </header>
       
       <main className="flex-1 relative z-10 px-4 py-8">
         {currentView === "home" && (
-          <Content onJoinLobby={handleJoinLobby} onViewPresentation={handleViewPresentation} />
+          <HomePage onJoinLobby={handleJoinLobby} onHostClick={handleHostClick} />
+        )}
+        {currentView === "signin" && (
+          <SignInPage onBack={handleBackToHome} />
+        )}
+        {currentView === "host" && (
+          <Authenticated>
+            <HostPage onViewPresentation={handleViewPresentation} onBack={handleBackToHome} />
+          </Authenticated>
         )}
         {currentView === "voting" && shareCode && (
           <VotingPage shareCode={shareCode} onBack={handleBackToHome} />
@@ -114,20 +157,12 @@ export default function App() {
   );
 }
 
-function Content({ onJoinLobby, onViewPresentation }: { 
+// Home Page - Join lobby + Host CTA
+function HomePage({ onJoinLobby, onHostClick }: { 
   onJoinLobby: (code: string) => void;
-  onViewPresentation: (id: string) => void;
+  onHostClick: () => void;
 }) {
-  const loggedInUser = useQuery(api.auth.loggedInUser);
   const [joinCode, setJoinCode] = useState("");
-
-  if (loggedInUser === undefined) {
-    return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="spinner" />
-      </div>
-    );
-  }
 
   const handleJoinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -139,30 +174,30 @@ function Content({ onJoinLobby, onViewPresentation }: {
   return (
     <div className="max-w-4xl mx-auto">
       {/* Hero Section */}
-      <div className="text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 text-sm font-medium mb-6">
+      <div className="text-center mb-14">
+        <div className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold-500/10 border border-gold-500/20 text-gold-400 font-medium mb-8">
           <span className="w-2 h-2 rounded-full bg-gold-400 animate-pulse" />
           New Year's Edition
         </div>
         
-        <h1 className="font-display text-5xl sm:text-6xl md:text-7xl font-bold mb-4 leading-tight">
+        <h1 className="font-display text-6xl sm:text-7xl md:text-8xl font-bold mb-6 leading-none tracking-tight">
           <span className="text-white">The</span>{" "}
           <span className="text-gold-gradient">Friend Awards</span>
         </h1>
         
-        <p className="text-xl text-slate-400 max-w-xl mx-auto leading-relaxed">
+        <p className="text-xl sm:text-2xl text-slate-400 max-w-2xl mx-auto leading-relaxed font-light">
           Vote on hilarious awards with your friends. 
           Celebrate the moments that made you laugh, cringe, and everything in between.
         </p>
       </div>
 
       {/* Join Lobby Card */}
-      <div className="glass-card-highlight p-8 mb-10 max-w-md mx-auto">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-gold-500/20 flex items-center justify-center">
-            <span className="text-xl">🎫</span>
+      <div className="glass-card-highlight p-8 sm:p-10 mb-8 max-w-md mx-auto">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-gold-500/20 flex items-center justify-center">
+            <span className="text-2xl">🎫</span>
           </div>
-          <h2 className="font-display text-2xl font-semibold text-white">Join a Lobby</h2>
+          <h2 className="font-display text-2xl sm:text-3xl text-white">Join a Lobby</h2>
         </div>
         
         <form onSubmit={handleJoinSubmit} className="space-y-4">
@@ -186,24 +221,101 @@ function Content({ onJoinLobby, onViewPresentation }: {
         </form>
       </div>
 
-      <Authenticated>
-        <LobbyDashboard onViewPresentation={onViewPresentation} />
-      </Authenticated>
+      {/* Divider */}
+      <div className="flex items-center justify-center gap-4 my-10 max-w-md mx-auto">
+        <div className="flex-1 h-px bg-gradient-to-r from-transparent to-navy-600" />
+        <span className="text-slate-500 text-sm">or</span>
+        <div className="flex-1 h-px bg-gradient-to-l from-transparent to-navy-600" />
+      </div>
 
-      <Unauthenticated>
-        <div className="glass-card p-8 max-w-md mx-auto">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-xl bg-navy-700 flex items-center justify-center">
-              <span className="text-xl">✨</span>
+      {/* Host Your Own CTA */}
+      <div className="max-w-md mx-auto">
+        <button
+          onClick={onHostClick}
+          className="w-full glass-card p-7 sm:p-8 text-left group hover-lift cursor-pointer"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-5">
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gold-500/20 to-amber-500/20 flex items-center justify-center group-hover:from-gold-500/30 group-hover:to-amber-500/30 transition-all">
+                <span className="text-3xl">✨</span>
+              </div>
+              <div>
+                <h3 className="font-display text-xl sm:text-2xl text-white mb-1">Host Your Own</h3>
+                <p className="text-slate-400">Create and run your own award ceremony</p>
+              </div>
             </div>
-            <div>
-              <h2 className="font-display text-xl font-semibold text-white">Host Your Own</h2>
-              <p className="text-sm text-slate-400">Create and manage award ceremonies</p>
-            </div>
+            <svg className="w-6 h-6 text-slate-500 group-hover:text-gold-400 group-hover:translate-x-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
           </div>
-          <SignInForm />
+        </button>
+      </div>
+
+      {/* Features */}
+      <div className="grid sm:grid-cols-3 gap-6 mt-20 max-w-3xl mx-auto">
+        {[
+          { icon: "🎭", title: "Fun Awards", desc: "Create hilarious categories" },
+          { icon: "🗳️", title: "Easy Voting", desc: "Friends vote in seconds" },
+          { icon: "🎬", title: "Epic Reveals", desc: "Present winners in style" },
+        ].map((feature) => (
+          <div key={feature.title} className="text-center p-6">
+            <div className="text-4xl mb-3">{feature.icon}</div>
+            <h4 className="font-display text-lg text-white mb-2">{feature.title}</h4>
+            <p className="text-slate-500">{feature.desc}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// Sign In Page
+function SignInPage({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-md mx-auto mt-8">
+      <button
+        onClick={onBack}
+        className="btn-ghost flex items-center gap-2 mb-8"
+      >
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back
+      </button>
+
+      <div className="glass-card-highlight p-8 sm:p-10">
+        <div className="text-center mb-10">
+          <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-gold-500/20 to-amber-500/20 flex items-center justify-center mx-auto mb-6">
+            <span className="text-4xl">✨</span>
+          </div>
+          <h1 className="font-display text-3xl sm:text-4xl text-white mb-3">Host Your Own</h1>
+          <p className="text-lg text-slate-400">Sign in to create and manage your award ceremonies</p>
         </div>
-      </Unauthenticated>
+        
+        <SignInForm />
+      </div>
+    </div>
+  );
+}
+
+// Host Page - Lobby Dashboard
+function HostPage({ onViewPresentation, onBack }: { 
+  onViewPresentation: (id: string) => void;
+  onBack: () => void;
+}) {
+  return (
+    <div>
+      <button
+        onClick={onBack}
+        className="btn-ghost flex items-center gap-2 mb-6 max-w-5xl mx-auto"
+      >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Home
+      </button>
+      
+      <LobbyDashboard onViewPresentation={onViewPresentation} />
     </div>
   );
 }

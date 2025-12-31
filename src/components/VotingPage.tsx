@@ -164,13 +164,13 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
   if (isComplete) {
     return (
       <div className="max-w-md mx-auto mt-12">
-        <div className="glass-card-highlight p-8 text-center">
-          <div className="text-7xl mb-4 trophy-animate">🎉</div>
-          <h2 className="font-display text-3xl font-bold text-white mb-3">All Done!</h2>
-          <p className="text-slate-300 mb-2">
-            Thanks for voting, <span className="text-gold-400 font-medium">{voterName}</span>!
+        <div className="glass-card-highlight p-10 sm:p-12 text-center">
+          <div className="text-8xl mb-6 trophy-animate">🎉</div>
+          <h2 className="font-display text-4xl sm:text-5xl text-white mb-4">All Done!</h2>
+          <p className="text-xl text-slate-300 mb-2">
+            Thanks for voting, <span className="text-gold-400 font-semibold">{voterName}</span>!
           </p>
-          <p className="text-slate-400 mb-8">
+          <p className="text-lg text-slate-400 mb-10">
             The host will reveal the results soon.
           </p>
           <button onClick={onBack} className="btn-primary">
@@ -219,10 +219,10 @@ export function VotingPage({ shareCode, onBack }: VotingPageProps) {
       </div>
 
       {/* Award Card */}
-      <div className="glass-card-highlight p-8 text-center mb-6">
-        <div className="text-5xl mb-6 trophy-animate">🏆</div>
+      <div className="glass-card-highlight p-8 sm:p-10 text-center mb-6">
+        <div className="text-6xl mb-6 trophy-animate">🏆</div>
         
-        <h2 className="font-display text-3xl sm:text-4xl font-bold text-white mb-8 leading-tight">
+        <h2 className="font-display text-3xl sm:text-4xl md:text-5xl text-white mb-10 leading-tight">
           {currentAward.question}
         </h2>
         

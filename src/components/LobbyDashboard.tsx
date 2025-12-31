@@ -36,8 +36,8 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="font-display text-3xl font-bold text-white mb-1">Your Lobbies</h2>
-          <p className="text-slate-400">Manage your award ceremonies</p>
+          <h2 className="font-display text-3xl sm:text-4xl text-white mb-2">Your Lobbies</h2>
+          <p className="text-lg text-slate-400">Manage your award ceremonies</p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
@@ -53,12 +53,12 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
       {/* Create Form Modal */}
       {showCreateForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/80 backdrop-blur-sm">
-          <div className="glass-card-highlight p-8 w-full max-w-md animate-in fade-in zoom-in duration-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gold-500/20 flex items-center justify-center">
-                <span className="text-2xl">🎬</span>
+          <div className="glass-card-highlight p-8 sm:p-10 w-full max-w-md animate-in fade-in zoom-in duration-200">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-14 h-14 rounded-2xl bg-gold-500/20 flex items-center justify-center">
+                <span className="text-3xl">🎬</span>
               </div>
-              <h3 className="font-display text-2xl font-semibold text-white">New Lobby</h3>
+              <h3 className="font-display text-2xl sm:text-3xl text-white">New Lobby</h3>
             </div>
             
             <form onSubmit={handleCreateLobby} className="space-y-6">
