@@ -117,7 +117,15 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
 
   const currentAward = awards[currentAwardIndex];
   const awardResults = voteResults.votesByAward[currentAward._id] || [];
-  const winner = awardResults[0];
+  
+  // Handle ties - find all people with the highest vote count
+  const topVoteCount = awardResults[0]?.votes || 0;
+  const winners = awardResults.filter((r) => r.votes === topVoteCount && r.votes > 0);
+  const isTie = winners.length > 1;
+  const hasWinner = winners.length > 0;
+  
+  // Runner-ups are people who are not in the winners list
+  const runnerUps = awardResults.filter((r) => r.votes < topVoteCount && r.votes > 0);
 
   return (
     <div className="presentation-mode relative flex min-h-screen flex-col overflow-hidden bg-navy-950 text-white safe-area-inset">
@@ -188,19 +196,45 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
           ) : (
             // Result Slide
             <div className="slide-content animate-in fade-in zoom-in space-y-4 duration-700 ease-out sm:space-y-6">
-              <div className="mb-4 text-5xl sm:mb-6 sm:text-7xl md:text-8xl">🎉</div>
+              <div className="mb-4 text-5xl sm:mb-6 sm:text-7xl md:text-8xl">
+                {isTie ? "🤝" : "🎉"}
+              </div>
 
               <h2 className="mb-3 font-display text-xl text-slate-300 sm:mb-4 sm:text-3xl md:text-4xl">
                 {currentAward.question}
               </h2>
 
-              {winner ? (
+              {hasWinner ? (
                 <div className="space-y-4 sm:space-y-8">
-                  {/* Winner Name */}
-                  <div className="relative inline-block">
-                    <div className="text-gold-gradient py-2 font-display text-4xl sm:py-4 sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl">
-                      {winner.friendName}
+                  {/* Tie indicator */}
+                  {isTie && (
+                    <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-400 sm:text-base">
+                      <span className="h-2 w-2 animate-pulse rounded-full bg-amber-400" />
+                      It's a {winners.length}-way tie!
                     </div>
+                  )}
+
+                  {/* Winner Name(s) */}
+                  <div className="relative inline-block">
+                    {isTie ? (
+                      // Multiple winners - show them stacked or side by side
+                      <div className="space-y-2 sm:space-y-4">
+                        {winners.map((winner, index) => (
+                          <div
+                            key={winner.friendId}
+                            className="text-gold-gradient py-1 font-display text-3xl sm:py-2 sm:text-5xl md:text-6xl lg:text-7xl"
+                            style={{ animationDelay: `${index * 0.15}s` }}
+                          >
+                            {winner.friendName}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      // Single winner
+                      <div className="text-gold-gradient py-2 font-display text-4xl sm:py-4 sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl">
+                        {winners[0].friendName}
+                      </div>
+                    )}
                     {/* Glow effect */}
                     <div className="absolute inset-0 -z-10 bg-gold-400/20 blur-3xl" />
                   </div>
@@ -209,24 +243,24 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
                   <div className="flex items-center justify-center gap-2 text-lg text-slate-300 sm:gap-3 sm:text-2xl md:text-3xl">
                     <Star className="h-5 w-5 fill-current text-gold-400 sm:h-6 sm:w-6" />
                     <span>
-                      <span className="font-semibold text-white">{winner.votes}</span> vote
-                      {winner.votes !== 1 ? "s" : ""}
+                      <span className="font-semibold text-white">{topVoteCount}</span> vote
+                      {topVoteCount !== 1 ? "s" : ""} {isTie && "each"}
                     </span>
                   </div>
 
-                  {/* Runner-ups */}
-                  {awardResults.length > 1 && (
+                  {/* Runner-ups (only show if there are people with fewer votes) */}
+                  {runnerUps.length > 0 && (
                     <div className="mt-6 border-t border-navy-700/50 pt-6 sm:mt-12 sm:pt-8">
                       <div className="mb-3 text-xs uppercase tracking-wider text-slate-500 sm:mb-4 sm:text-sm">
                         Runner-ups
                       </div>
                       <div className="flex flex-wrap justify-center gap-3 sm:gap-6">
-                        {awardResults.slice(1, 3).map((result, index) => (
+                        {runnerUps.slice(0, 3).map((result, index) => (
                           <div
                             key={result.friendId}
                             className="rounded-lg border border-navy-700/50 bg-navy-800/50 px-3 py-2 text-sm backdrop-blur sm:rounded-xl sm:px-6 sm:py-3 sm:text-base"
                           >
-                            <span className="mr-1.5 text-slate-400 sm:mr-2">#{index + 2}</span>
+                            <span className="mr-1.5 text-slate-400 sm:mr-2">#{index + winners.length + 1}</span>
                             <span className="font-medium text-white">{result.friendName}</span>
                             <span className="ml-1.5 text-slate-500 sm:ml-2">({result.votes})</span>
                           </div>
