@@ -405,7 +405,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
       {/* Two Column Layout */}
       <div className="grid gap-8 md:grid-cols-2">
         {/* Friends Section */}
-        <div>
+        <div className="flex flex-col">
           <div className="mb-4 flex items-center gap-2">
             <span className="text-xl">👥</span>
             <h4 className="text-lg font-semibold text-white">Friends ({friends.length})</h4>
@@ -430,7 +430,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
             </div>
           </form>
 
-          <div className="max-h-64 space-y-2 overflow-y-auto pr-2">
+          <div className="custom-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto pr-2" style={{ maxHeight: "320px" }}>
             {friends.map((friend) => (
               <FriendItem
                 key={friend._id}
@@ -448,7 +448,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
         </div>
 
         {/* Awards Section */}
-        <div>
+        <div className="flex flex-col">
           <div className="mb-4 flex items-center gap-2">
             <span className="text-xl">🏆</span>
             <h4 className="text-lg font-semibold text-white">Awards ({awards.length})</h4>
@@ -469,7 +469,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
             </div>
           </form>
 
-          <div className="max-h-[400px] space-y-3 overflow-y-auto pr-2">
+          <div className="custom-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto pr-2" style={{ maxHeight: "320px" }}>
             {awards.map((award) => {
               const progress = votingProgress.find((p) => p.awardId === award._id);
               return (

@@ -41,7 +41,7 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - global */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -58,6 +58,48 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-navy-600);
+}
+
+/* Custom scrollbar - component-specific (thinner, more subtle) */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-navy-600) transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-navy-600);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-500);
+}
+
+/* Hide scrollbar when not hovering */
+.custom-scrollbar {
+  scrollbar-gutter: stable;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: var(--color-navy-600);
+}
+
+.custom-scrollbar:hover::-webkit-scrollbar-thumb:hover {
+  background: var(--color-gold-500);
 }
 
 /* Display font class */
