@@ -99,3 +99,33 @@ export const updateNominees = mutation({
     return null;
   },
 });
+
+export const updateAward = mutation({
+  args: {
+    awardId: v.id("awards"),
+    question: v.string(),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Must be logged in");
+    }
+
+    const award = await ctx.db.get(args.awardId);
+    if (!award) {
+      throw new Error("Award not found");
+    }
+
+    const lobby = await ctx.db.get(award.lobbyId);
+    if (!lobby || lobby.creatorId !== userId) {
+      throw new Error("Not authorized");
+    }
+
+    await ctx.db.patch(args.awardId, {
+      question: args.question.trim(),
+    });
+
+    return null;
+  },
+});

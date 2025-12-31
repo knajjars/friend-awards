@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { Id } from "../../convex/_generated/dataModel";
-import { Plus, Trash2, Copy, Users, X, ImageIcon, Star } from "lucide-react";
+import { Plus, Trash2, Copy, Users, X, ImageIcon, Star, Pencil, Check } from "lucide-react";
 
 interface LobbyDashboardProps {
   onViewPresentation: (lobbyId: string) => void;
@@ -80,18 +80,18 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
             <form onSubmit={handleCreateLobby} className="space-y-5 sm:space-y-6">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">Lobby Name</label>
-                <input
-                  type="text"
+            <input
+              type="text"
                   placeholder="e.g., Summer Trip Awards 2024"
-                  value={lobbyName}
-                  onChange={(e) => setLobbyName(e.target.value)}
+              value={lobbyName}
+              onChange={(e) => setLobbyName(e.target.value)}
                   className="input-field"
-                  autoFocus
-                />
+              autoFocus
+            />
               </div>
 
-              <div className="flex gap-3">
-                <button
+            <div className="flex gap-3">
+              <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
                   className="btn-secondary flex-1 touch-target"
@@ -99,7 +99,7 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
                   Cancel
                 </button>
                 <button type="submit" disabled={!lobbyName.trim()} className="btn-primary flex-1 touch-target">
-                  Create
+                Create
                 </button>
               </div>
             </form>
@@ -173,15 +173,15 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
   );
 }
 
-function LobbyCard({
-  lobby,
-  isSelected,
-  onSelect,
+function LobbyCard({ 
+  lobby, 
+  isSelected, 
+  onSelect, 
   onViewPresentation,
   onDelete,
-}: {
-  lobby: any;
-  isSelected: boolean;
+}: { 
+  lobby: any; 
+  isSelected: boolean; 
   onSelect: () => void;
   onViewPresentation: () => void;
   onDelete: () => void;
@@ -193,7 +193,7 @@ function LobbyCard({
   };
 
   return (
-    <div
+    <div 
       className={`glass-card cursor-pointer p-4 transition-all duration-300 active:scale-[0.99] sm:p-6 ${
         isSelected ? "bg-navy-800/70 ring-2 ring-gold-400/50" : ""
       }`}
@@ -218,12 +218,12 @@ function LobbyCard({
               <span className="badge-success text-xs sm:text-sm">
                 <span className="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 sm:mr-2" />
                 Voting Open
-              </span>
+            </span>
             ) : lobby.isPresentationMode ? (
               <span className="badge-info text-xs sm:text-sm">
                 <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-sky-400 sm:mr-2" />
                 Presenting
-              </span>
+            </span>
             ) : (
               <span className="badge-neutral text-xs sm:text-sm">Setup Mode</span>
             )}
@@ -283,6 +283,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
   const addAward = useMutation(api.awards.addAward);
   const removeAward = useMutation(api.awards.removeAward);
   const updateNominees = useMutation(api.awards.updateNominees);
+  const updateAward = useMutation(api.awards.updateAward);
   const toggleVoting = useMutation(api.lobbies.toggleVoting);
   const startPresentation = useMutation(api.lobbies.startPresentation);
 
@@ -338,11 +339,11 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
         headers: { "Content-Type": file.type },
         body: file,
       });
-
+      
       if (!result.ok) {
         throw new Error("Upload failed");
       }
-
+      
       const { storageId } = await result.json();
       await updateFriendImage({ friendId: friendId as any, imageId: storageId });
       toast.success("Image uploaded!");
@@ -356,6 +357,15 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
       await updateNominees({ awardId, nomineeIds });
     } catch (error) {
       toast.error("Failed to update nominees");
+    }
+  };
+
+  const handleUpdateAward = async (awardId: Id<"awards">, question: string) => {
+    try {
+      await updateAward({ awardId, question });
+      toast.success("Award updated!");
+    } catch (error) {
+      toast.error("Failed to update award");
     }
   };
 
@@ -480,6 +490,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
                   voteCount={progress?.voterCount || 0}
                   onRemove={() => removeAward({ awardId: award._id })}
                   onUpdateNominees={(nomineeIds) => handleUpdateNominees(award._id, nomineeIds)}
+                  onUpdateQuestion={(question) => handleUpdateAward(award._id, question)}
                 />
               );
             })}
@@ -514,14 +525,18 @@ function AwardItem({
   voteCount,
   onRemove,
   onUpdateNominees,
+  onUpdateQuestion,
 }: {
   award: any;
   friends: any[];
   voteCount: number;
   onRemove: () => void;
   onUpdateNominees: (nomineeIds: Id<"friends">[]) => void;
+  onUpdateQuestion: (question: string) => void;
 }) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(award.question);
   const nomineeIds: Id<"friends">[] = award.nomineeIds || [];
   const hasCustomNominees = nomineeIds.length > 0;
 
@@ -537,14 +552,60 @@ function AwardItem({
     onUpdateNominees([]);
   };
 
+  const handleSaveEdit = () => {
+    if (editValue.trim() && editValue.trim() !== award.question) {
+      onUpdateQuestion(editValue.trim());
+    }
+    setIsEditing(false);
+  };
+
+  const handleCancelEdit = () => {
+    setEditValue(award.question);
+    setIsEditing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSaveEdit();
+    } else if (e.key === "Escape") {
+      handleCancelEdit();
+    }
+  };
+
   return (
     <div className="overflow-hidden rounded-xl border border-navy-700/50 bg-navy-900/50">
       {/* Award Header */}
       <div className="group p-3 sm:p-4">
         <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div className="min-w-0 flex-1">
-            <span className="text-sm text-slate-200 sm:text-base">{award.question}</span>
-            {voteCount > 0 && (
+            {isEditing ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  onBlur={handleSaveEdit}
+                  className="w-full rounded-lg border border-gold-500/30 bg-navy-800 px-3 py-1.5 text-sm text-slate-200 outline-none focus:border-gold-500 sm:text-base"
+                  autoFocus
+                />
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setEditValue(award.question);
+                  setIsEditing(true);
+                }}
+                className="group/edit text-left"
+              >
+                <span className="text-sm text-slate-200 group-hover/edit:text-white sm:text-base">
+                  {award.question}
+                </span>
+                <Pencil className="ml-2 inline h-3 w-3 text-slate-500 opacity-0 transition-opacity group-hover/edit:opacity-100 sm:h-3.5 sm:w-3.5" />
+              </button>
+            )}
+            {voteCount > 0 && !isEditing && (
               <div className="mt-1 flex items-center gap-1 text-xs text-gold-400 sm:text-sm">
                 <Star className="h-3 w-3 fill-current sm:h-3.5 sm:w-3.5" />
                 {voteCount} vote{voteCount !== 1 ? "s" : ""}
@@ -552,28 +613,49 @@ function AwardItem({
             )}
           </div>
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => setIsExpanded(!isExpanded)}
-              className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors sm:h-8 sm:w-8 ${
-                hasCustomNominees
-                  ? "bg-gold-500/10 text-gold-400 active:bg-gold-500/20"
-                  : "text-slate-500 active:bg-navy-700 sm:hover:bg-navy-700 sm:hover:text-slate-300"
-              }`}
-              title="Select nominees"
-            >
-              <Users className="h-4 w-4" />
-            </button>
-            <button
-              onClick={onRemove}
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 opacity-100 transition-colors active:bg-red-500/20 sm:h-8 sm:w-8 sm:opacity-0 sm:hover:bg-red-500/10 sm:hover:text-red-400 sm:group-hover:opacity-100"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            {isEditing ? (
+              <>
+                <button
+                  onClick={handleSaveEdit}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-400 transition-colors active:bg-emerald-500/20 sm:h-8 sm:w-8"
+                  title="Save"
+                >
+                  <Check className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={handleCancelEdit}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 transition-colors active:bg-red-500/20 sm:h-8 sm:w-8"
+                  title="Cancel"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsExpanded(!isExpanded)}
+                  className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors sm:h-8 sm:w-8 ${
+                    hasCustomNominees
+                      ? "bg-gold-500/10 text-gold-400 active:bg-gold-500/20"
+                      : "text-slate-500 active:bg-navy-700 sm:hover:bg-navy-700 sm:hover:text-slate-300"
+                  }`}
+                  title="Select nominees"
+                >
+                  <Users className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={onRemove}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 opacity-100 transition-colors active:bg-red-500/20 sm:h-8 sm:w-8 sm:opacity-0 sm:hover:bg-red-500/10 sm:hover:text-red-400 sm:group-hover:opacity-100"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </>
+            )}
           </div>
         </div>
 
         {/* Nominee count badge */}
-        {hasCustomNominees && !isExpanded && (
+        {hasCustomNominees && !isExpanded && !isEditing && (
           <div className="mt-2 flex items-center gap-1.5">
             <span className="text-xs text-slate-500">Nominees:</span>
             <div className="flex -space-x-1">
@@ -645,12 +727,12 @@ function AwardItem({
   );
 }
 
-function FriendItem({
-  friend,
-  onRemove,
+function FriendItem({ 
+  friend, 
+  onRemove, 
   onImageUpload,
-}: {
-  friend: any;
+}: { 
+  friend: any; 
   onRemove: () => void;
   onImageUpload: (file: File) => void;
 }) {
@@ -659,8 +741,8 @@ function FriendItem({
       <div className="flex items-center gap-3">
         <div className="flex-shrink-0">
           {friend.imageUrl ? (
-            <img
-              src={friend.imageUrl}
+            <img 
+              src={friend.imageUrl} 
               alt={friend.name}
               className="h-10 w-10 rounded-full object-cover ring-2 ring-navy-600"
             />
