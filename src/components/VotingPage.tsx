@@ -17,10 +17,18 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   const [currentAwardIndex, setCurrentAwardIndex] = useState(0);
   const [hasSelectedIdentity, setHasSelectedIdentity] = useState(false);
   const [votedAwards, setVotedAwards] = useState<Set<string>>(new Set());
+  const [isCheckingIdentity, setIsCheckingIdentity] = useState(true);
 
   const lobby = useQuery(api.lobbies.getLobbyByShareCode, { shareCode });
-  const friends = useQuery(api.friends.getFriends, lobby ? { lobbyId: lobby._id } : "skip") || [];
-  const awards = useQuery(api.awards.getAwards, lobby ? { lobbyId: lobby._id } : "skip") || [];
+  const friendsQuery = useQuery(api.friends.getFriends, lobby ? { lobbyId: lobby._id } : "skip");
+  const awardsQuery = useQuery(api.awards.getAwards, lobby ? { lobbyId: lobby._id } : "skip");
+
+  const friends = friendsQuery || [];
+  const awards = awardsQuery || [];
+
+  // Check if data is still loading
+  const isLoading =
+    lobby === undefined || (lobby && (friendsQuery === undefined || awardsQuery === undefined));
 
   const castVote = useMutation(api.votes.castVote);
 
@@ -33,6 +41,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
       setVoterName(savedVoterName);
       setHasSelectedIdentity(true);
     }
+    setIsCheckingIdentity(false);
   }, [shareCode]);
 
   // Verify that saved voter is still in the friends list
@@ -84,8 +93,21 @@ export function VotingPage({ shareCode }: VotingPageProps) {
     }
   };
 
-  // Error/Loading States
-  if (!lobby) {
+  // Loading State
+  if (isLoading || isCheckingIdentity) {
+    return (
+      <div className="mx-auto mt-16 max-w-md px-4 sm:mt-24 sm:px-6">
+        <div className="flex flex-col items-center justify-center text-center">
+          <div className="mb-6 text-5xl sm:text-6xl">🎫</div>
+          <div className="spinner mb-4 h-8 w-8" />
+          <p className="text-sm text-slate-400 sm:text-base">Loading lobby...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error State - Lobby not found (after loading completes)
+  if (lobby === null) {
     return (
       <div className="mx-auto mt-8 max-w-md px-4 sm:mt-12 sm:px-6">
         <div className="glass-card p-6 text-center sm:p-8">
@@ -295,13 +317,12 @@ export function VotingPage({ shareCode }: VotingPageProps) {
             <button
               key={award._id}
               onClick={() => setCurrentAwardIndex(i)}
-              className={`h-2.5 w-2.5 flex-shrink-0 rounded-full transition-all duration-300 sm:h-2 sm:w-2 ${
-                i === currentAwardIndex
-                  ? "scale-125 bg-gold-400"
-                  : votedAwards.has(award._id)
-                    ? "bg-emerald-500"
-                    : "active:bg-navy-500 sm:hover:bg-navy-500 bg-navy-600"
-              }`}
+              className={`h-2.5 w-2.5 flex-shrink-0 rounded-full transition-all duration-300 sm:h-2 sm:w-2 ${i === currentAwardIndex
+                ? "scale-125 bg-gold-400"
+                : votedAwards.has(award._id)
+                  ? "bg-emerald-500"
+                  : "active:bg-navy-500 sm:hover:bg-navy-500 bg-navy-600"
+                }`}
             />
           ))}
         </div>
@@ -322,11 +343,10 @@ export function VotingPage({ shareCode }: VotingPageProps) {
               key={friend._id}
               onClick={() => handleVote(friend._id)}
               disabled={hasVotedCurrent}
-              className={`group flex w-full items-center justify-center gap-2.5 rounded-xl p-3 text-sm font-medium transition-all duration-200 sm:gap-3 sm:p-4 sm:text-base ${
-                hasVotedCurrent
-                  ? "cursor-not-allowed bg-navy-800/50 text-slate-500"
-                  : "border border-navy-600 bg-navy-800/80 text-slate-200 active:scale-[0.98] active:bg-gold-500/10 sm:hover:scale-[1.02] sm:hover:border-gold-400/30 sm:hover:bg-gradient-to-r sm:hover:from-gold-500/20 sm:hover:to-amber-500/20 sm:hover:text-white sm:hover:shadow-lg sm:hover:shadow-gold-500/10"
-              }`}
+              className={`group flex w-full items-center justify-center gap-2.5 rounded-xl p-3 text-sm font-medium transition-all duration-200 sm:gap-3 sm:p-4 sm:text-base ${hasVotedCurrent
+                ? "cursor-not-allowed bg-navy-800/50 text-slate-500"
+                : "border border-navy-600 bg-navy-800/80 text-slate-200 active:scale-[0.98] active:bg-gold-500/10 sm:hover:scale-[1.02] sm:hover:border-gold-400/30 sm:hover:bg-gradient-to-r sm:hover:from-gold-500/20 sm:hover:to-amber-500/20 sm:hover:text-white sm:hover:shadow-lg sm:hover:shadow-gold-500/10"
+                }`}
             >
               {/* Avatar */}
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 transition-all group-hover:from-gold-500/50 group-hover:to-amber-500/50 sm:h-10 sm:w-10">
