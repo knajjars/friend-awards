@@ -120,17 +120,17 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
   const winner = awardResults[0];
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-navy-950 text-white">
+    <div className="presentation-mode relative flex min-h-screen flex-col overflow-hidden bg-navy-950 text-white safe-area-inset">
       {/* Animated background effects */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute left-1/4 top-0 h-96 w-96 animate-pulse-slow rounded-full bg-gold-500/10 blur-3xl" />
+        <div className="absolute left-1/4 top-0 h-64 w-64 animate-pulse-slow rounded-full bg-gold-500/10 blur-3xl sm:h-96 sm:w-96" />
         <div
-          className="absolute bottom-0 right-1/4 h-96 w-96 animate-pulse-slow rounded-full bg-amber-500/10 blur-3xl"
+          className="absolute bottom-0 right-1/4 h-64 w-64 animate-pulse-slow rounded-full bg-amber-500/10 blur-3xl sm:h-96 sm:w-96"
           style={{ animationDelay: "2s" }}
         />
 
-        {/* Star particles */}
-        {[...Array(30)].map((_, i) => (
+        {/* Star particles - fewer on mobile */}
+        {[...Array(15)].map((_, i) => (
           <div
             key={i}
             className="absolute h-1 w-1 animate-sparkle rounded-full bg-gold-400 opacity-30"
@@ -144,42 +144,42 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
       </div>
 
       {/* Header */}
-      <div className="relative z-10 flex items-center justify-between p-4 sm:p-6">
-        <button onClick={handleExit} className="btn-ghost flex items-center gap-2">
-          <ArrowLeft className="h-5 w-5" />
-          Exit
+      <div className="relative z-10 flex items-center justify-between p-3 sm:p-4 md:p-6">
+        <button onClick={handleExit} className="btn-ghost flex items-center gap-1.5 px-2.5 py-2 text-sm sm:gap-2 sm:px-4 sm:text-base">
+          <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="hidden xs:inline">Exit</span>
         </button>
 
-        <h1 className="text-gold-gradient hidden font-display text-xl font-bold sm:block sm:text-2xl">
+        <h1 className="text-gold-gradient hidden font-display text-lg font-bold sm:block sm:text-xl md:text-2xl">
           {lobby.name}
         </h1>
 
-        <div className="rounded-full border border-navy-700 bg-navy-800/80 px-4 py-2 text-sm backdrop-blur">
+        <div className="rounded-full border border-navy-700 bg-navy-800/80 px-3 py-1.5 text-xs backdrop-blur sm:px-4 sm:py-2 sm:text-sm">
           <span className="font-semibold text-gold-400">{currentSlide + 1}</span>
           <span className="text-slate-400"> / {totalSlides}</span>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="relative z-10 flex flex-1 items-center justify-center p-6 sm:p-8">
+      <div className="relative z-10 flex flex-1 items-center justify-center px-4 py-4 sm:p-6 md:p-8">
         <div className="w-full max-w-4xl text-center">
           {!isResultSlide ? (
             // Question Slide
-            <div className="animate-in fade-in slide-in-from-bottom-4 space-y-8 duration-500">
-              <div className="trophy-animate mb-8 text-8xl sm:text-9xl">🏆</div>
-              <h2 className="mb-8 font-display text-5xl leading-none text-white sm:text-6xl md:text-7xl lg:text-8xl">
+            <div className="slide-content animate-in fade-in slide-in-from-bottom-4 space-y-4 duration-700 ease-out sm:space-y-8">
+              <div className="trophy-animate mb-4 text-6xl sm:mb-8 sm:text-8xl md:text-9xl">🏆</div>
+              <h2 className="mb-4 font-display text-3xl leading-tight text-white sm:mb-8 sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">
                 {currentAward.question}
               </h2>
-              <div className="text-2xl font-light text-slate-400 sm:text-3xl">
+              <div className="text-lg font-light text-slate-400 sm:text-2xl md:text-3xl">
                 And the winner is...
               </div>
 
               {/* Dramatic pause indicator */}
-              <div className="mt-8 flex justify-center gap-2">
+              <div className="mt-4 flex justify-center gap-1.5 sm:mt-8 sm:gap-2">
                 {[...Array(3)].map((_, i) => (
                   <div
                     key={i}
-                    className="h-3 w-3 animate-bounce rounded-full bg-gold-400"
+                    className="h-2 w-2 animate-bounce rounded-full bg-gold-400 sm:h-3 sm:w-3"
                     style={{ animationDelay: `${i * 0.15}s` }}
                   />
                 ))}
@@ -187,18 +187,18 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
             </div>
           ) : (
             // Result Slide
-            <div className="animate-in fade-in zoom-in space-y-6 duration-500">
-              <div className="mb-6 text-7xl sm:text-8xl">🎉</div>
+            <div className="slide-content animate-in fade-in zoom-in space-y-4 duration-700 ease-out sm:space-y-6">
+              <div className="mb-4 text-5xl sm:mb-6 sm:text-7xl md:text-8xl">🎉</div>
 
-              <h2 className="mb-4 font-display text-3xl text-slate-300 sm:text-4xl">
+              <h2 className="mb-3 font-display text-xl text-slate-300 sm:mb-4 sm:text-3xl md:text-4xl">
                 {currentAward.question}
               </h2>
 
               {winner ? (
-                <div className="space-y-8">
+                <div className="space-y-4 sm:space-y-8">
                   {/* Winner Name */}
                   <div className="relative inline-block">
-                    <div className="text-gold-gradient py-4 font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl">
+                    <div className="text-gold-gradient py-2 font-display text-4xl sm:py-4 sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl">
                       {winner.friendName}
                     </div>
                     {/* Glow effect */}
@@ -206,8 +206,8 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
                   </div>
 
                   {/* Vote count */}
-                  <div className="flex items-center justify-center gap-3 text-2xl text-slate-300 sm:text-3xl">
-                    <Star className="h-6 w-6 fill-current text-gold-400" />
+                  <div className="flex items-center justify-center gap-2 text-lg text-slate-300 sm:gap-3 sm:text-2xl md:text-3xl">
+                    <Star className="h-5 w-5 fill-current text-gold-400 sm:h-6 sm:w-6" />
                     <span>
                       <span className="font-semibold text-white">{winner.votes}</span> vote
                       {winner.votes !== 1 ? "s" : ""}
@@ -216,19 +216,19 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
 
                   {/* Runner-ups */}
                   {awardResults.length > 1 && (
-                    <div className="mt-12 border-t border-navy-700/50 pt-8">
-                      <div className="mb-4 text-sm uppercase tracking-wider text-slate-500">
+                    <div className="mt-6 border-t border-navy-700/50 pt-6 sm:mt-12 sm:pt-8">
+                      <div className="mb-3 text-xs uppercase tracking-wider text-slate-500 sm:mb-4 sm:text-sm">
                         Runner-ups
                       </div>
-                      <div className="flex flex-wrap justify-center gap-6">
+                      <div className="flex flex-wrap justify-center gap-3 sm:gap-6">
                         {awardResults.slice(1, 3).map((result, index) => (
                           <div
                             key={result.friendId}
-                            className="rounded-xl border border-navy-700/50 bg-navy-800/50 px-6 py-3 backdrop-blur"
+                            className="rounded-lg border border-navy-700/50 bg-navy-800/50 px-3 py-2 text-sm backdrop-blur sm:rounded-xl sm:px-6 sm:py-3 sm:text-base"
                           >
-                            <span className="mr-2 text-slate-400">#{index + 2}</span>
+                            <span className="mr-1.5 text-slate-400 sm:mr-2">#{index + 2}</span>
                             <span className="font-medium text-white">{result.friendName}</span>
-                            <span className="ml-2 text-slate-500">({result.votes})</span>
+                            <span className="ml-1.5 text-slate-500 sm:ml-2">({result.votes})</span>
                           </div>
                         ))}
                       </div>
@@ -236,38 +236,38 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
                   )}
                 </div>
               ) : (
-                <div className="text-3xl font-light text-slate-500 sm:text-4xl">No votes yet!</div>
+                <div className="text-2xl font-light text-slate-500 sm:text-3xl md:text-4xl">No votes yet!</div>
               )}
             </div>
           )}
         </div>
       </div>
 
-      {/* Navigation */}
-      <div className="relative z-10 flex items-center justify-between p-4 sm:p-6">
+      {/* Navigation - fixed at bottom */}
+      <div className="relative z-10 flex items-center justify-between gap-2 p-3 sm:gap-4 sm:p-4 md:p-6">
         <button
           onClick={handlePrevious}
           disabled={currentSlide === 0}
-          className="btn-secondary flex items-center gap-2"
+          className="btn-secondary flex h-11 items-center gap-1.5 px-3 sm:h-auto sm:gap-2 sm:px-4"
         >
           <ChevronLeft className="h-5 w-5" />
           <span className="hidden sm:inline">Previous</span>
         </button>
 
-        {/* Progress dots */}
-        <div className="flex max-w-xs gap-2 overflow-x-auto px-4">
+        {/* Progress dots - scrollable */}
+        <div className="custom-scrollbar flex max-w-[40vw] gap-1.5 overflow-x-auto px-2 sm:max-w-xs sm:gap-2 sm:px-4">
           {[...Array(totalSlides)].map((_, i) => (
             <button
               key={i}
               onClick={async () => {
                 await updateSlide({ lobbyId: lobbyId as Id<"lobbies">, slide: i });
               }}
-              className={`h-2.5 w-2.5 flex-shrink-0 rounded-full transition-all duration-300 ${
+              className={`h-3 w-3 flex-shrink-0 rounded-full transition-all duration-300 sm:h-2.5 sm:w-2.5 ${
                 i === currentSlide
-                  ? "scale-125 bg-gold-400"
+                  ? "scale-110 bg-gold-400 sm:scale-125"
                   : i < currentSlide
                     ? "bg-gold-400/50"
-                    : "hover:bg-navy-500 bg-navy-600"
+                    : "bg-navy-600 active:bg-navy-500 sm:hover:bg-navy-500"
               }`}
             />
           ))}
@@ -276,7 +276,7 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
         <button
           onClick={handleNext}
           disabled={currentSlide >= totalSlides - 1}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex h-11 items-center gap-1.5 px-3 sm:h-auto sm:gap-2 sm:px-4"
         >
           <span className="hidden sm:inline">
             {currentSlide >= totalSlides - 1 ? "Finished" : "Next"}
@@ -285,8 +285,8 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
         </button>
       </div>
 
-      {/* Keyboard hints */}
-      <div className="absolute bottom-20 left-1/2 hidden -translate-x-1/2 text-xs text-slate-600 sm:block">
+      {/* Keyboard hints - desktop only */}
+      <div className="absolute bottom-20 left-1/2 hidden -translate-x-1/2 text-xs text-slate-600 lg:block">
         Use <kbd className="rounded border border-navy-700 bg-navy-800 px-1.5 py-0.5">←</kbd>{" "}
         <kbd className="rounded border border-navy-700 bg-navy-800 px-1.5 py-0.5">→</kbd> or{" "}
         <kbd className="rounded border border-navy-700 bg-navy-800 px-1.5 py-0.5">Space</kbd> to

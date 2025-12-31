@@ -60,18 +60,18 @@ function Layout({ children }: { children: React.ReactNode }) {
         <div className="from-amber-500/3 absolute -bottom-1/2 -right-1/4 h-full w-full bg-gradient-radial via-transparent to-transparent" />
       </div>
 
-      <header className="sticky top-0 z-50 border-b border-navy-700/50 bg-navy-950/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-          <Link to="/" className="group flex items-center gap-3">
-            <span className="trophy-animate text-3xl">🏆</span>
-            <span className="text-gold-gradient font-display text-2xl">Friend Awards</span>
+      <header className="sticky top-0 z-50 border-b border-navy-700/50 bg-navy-950/80 backdrop-blur-xl safe-area-top">
+        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-3 sm:h-16 sm:px-6">
+          <Link to="/" className="group flex items-center gap-2 sm:gap-3">
+            <span className="trophy-animate text-2xl sm:text-3xl">🏆</span>
+            <span className="text-gold-gradient font-display text-lg sm:text-2xl">Friend Awards</span>
           </Link>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <Authenticated>
-              <Link to="/host" className="btn-ghost hidden items-center gap-2 text-sm sm:flex">
+              <Link to="/host" className="btn-ghost flex items-center gap-1.5 px-2.5 py-2 text-sm sm:gap-2 sm:px-4">
                 <Menu className="h-4 w-4" />
-                My Lobbies
+                <span className="hidden xs:inline">My Lobbies</span>
               </Link>
               <SignOutButton />
             </Authenticated>
@@ -79,10 +79,11 @@ function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="relative z-10 flex-1 px-4 py-8">{children}</main>
+      <main className="relative z-10 flex-1 px-3 py-6 sm:px-4 sm:py-8 safe-area-bottom">{children}</main>
 
       <Toaster
         theme="dark"
+        position="top-center"
         toastOptions={{
           style: {
             background: "#161a2e",
@@ -177,30 +178,30 @@ function HomePage() {
   return (
     <div className="mx-auto max-w-4xl">
       {/* Hero Section */}
-      <div className="mb-14 text-center">
-        <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-5 py-2.5 font-medium text-gold-400">
+      <div className="mb-10 text-center sm:mb-14">
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-2 text-sm font-medium text-gold-400 sm:mb-8 sm:px-5 sm:py-2.5 sm:text-base">
           <span className="h-2 w-2 animate-pulse rounded-full bg-gold-400" />
           New Year's Edition
         </div>
 
-        <h1 className="mb-6 font-display text-6xl font-bold leading-none tracking-tight sm:text-7xl md:text-8xl">
+        <h1 className="mb-4 font-display text-4xl font-bold leading-none tracking-tight sm:mb-6 sm:text-6xl md:text-7xl lg:text-8xl">
           <span className="text-white">The</span>{" "}
           <span className="text-gold-gradient">Friend Awards</span>
         </h1>
 
-        <p className="mx-auto max-w-2xl text-xl font-light leading-relaxed text-slate-400 sm:text-2xl">
+        <p className="mx-auto max-w-2xl px-2 text-base font-light leading-relaxed text-slate-400 sm:text-xl md:text-2xl">
           Vote on hilarious awards with your friends. Celebrate the moments that made you laugh,
           cringe, and everything in between.
         </p>
       </div>
 
       {/* Join Lobby Card */}
-      <div className="glass-card-highlight mx-auto mb-8 max-w-md p-8 sm:p-10">
-        <div className="mb-8 flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-500/20">
-            <span className="text-2xl">🎫</span>
+      <div className="glass-card-highlight mx-auto mb-6 max-w-md p-6 sm:mb-8 sm:p-8 md:p-10">
+        <div className="mb-6 flex items-center gap-3 sm:mb-8 sm:gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold-500/20 sm:h-14 sm:w-14 sm:rounded-2xl">
+            <span className="text-xl sm:text-2xl">🎫</span>
           </div>
-          <h2 className="font-display text-2xl text-white sm:text-3xl">Join a Lobby</h2>
+          <h2 className="font-display text-xl text-white sm:text-2xl md:text-3xl">Join a Lobby</h2>
         </div>
 
         <form onSubmit={handleJoinSubmit} className="space-y-4">
@@ -210,18 +211,21 @@ function HomePage() {
               placeholder="Enter 6-digit code"
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-              className="input-field text-center font-mono text-xl uppercase tracking-[0.3em] placeholder:text-base placeholder:tracking-normal"
+              className="input-field text-center font-mono text-lg uppercase tracking-[0.2em] placeholder:text-sm placeholder:tracking-normal sm:text-xl sm:tracking-[0.3em] sm:placeholder:text-base"
               maxLength={6}
+              inputMode="text"
+              autoComplete="off"
+              autoCapitalize="characters"
             />
           </div>
-          <button type="submit" disabled={!joinCode.trim()} className="btn-primary w-full text-lg">
+          <button type="submit" disabled={!joinCode.trim()} className="btn-primary w-full touch-target">
             Join the Party
           </button>
         </form>
       </div>
 
       {/* Divider */}
-      <div className="mx-auto my-10 flex max-w-md items-center justify-center gap-4">
+      <div className="mx-auto my-8 flex max-w-md items-center justify-center gap-4 sm:my-10">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent to-navy-600" />
         <span className="text-sm text-slate-500">or</span>
         <div className="h-px flex-1 bg-gradient-to-l from-transparent to-navy-600" />
@@ -231,34 +235,34 @@ function HomePage() {
       <div className="mx-auto max-w-md">
         <button
           onClick={handleHostClick}
-          className="glass-card hover-lift group w-full cursor-pointer p-7 text-left sm:p-8"
+          className="glass-card hover-lift group w-full cursor-pointer p-5 text-left sm:p-7 md:p-8"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-5">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-gold-500/20 to-amber-500/20 transition-all group-hover:from-gold-500/30 group-hover:to-amber-500/30">
-                <span className="text-3xl">✨</span>
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 sm:gap-5">
+              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-gold-500/20 to-amber-500/20 transition-all group-hover:from-gold-500/30 group-hover:to-amber-500/30 sm:h-14 sm:w-14 sm:rounded-2xl">
+                <span className="text-2xl sm:text-3xl">✨</span>
               </div>
-              <div>
-                <h3 className="mb-1 font-display text-xl text-white sm:text-2xl">Host Your Own</h3>
-                <p className="text-slate-400">Create and run your own award ceremony</p>
+              <div className="min-w-0">
+                <h3 className="mb-0.5 font-display text-lg text-white sm:mb-1 sm:text-xl md:text-2xl">Host Your Own</h3>
+                <p className="text-sm text-slate-400 sm:text-base">Create and run your own award ceremony</p>
               </div>
             </div>
-            <ChevronRight className="h-6 w-6 text-slate-500 transition-all group-hover:translate-x-1 group-hover:text-gold-400" />
+            <ChevronRight className="h-5 w-5 flex-shrink-0 text-slate-500 transition-all group-hover:translate-x-1 group-hover:text-gold-400 sm:h-6 sm:w-6" />
           </div>
         </button>
       </div>
 
       {/* Features */}
-      <div className="mx-auto mt-20 grid max-w-3xl gap-6 sm:grid-cols-3">
+      <div className="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-2 sm:mt-20 sm:gap-6">
         {[
           { icon: "🎭", title: "Fun Awards", desc: "Create hilarious categories" },
           { icon: "🗳️", title: "Easy Voting", desc: "Friends vote in seconds" },
           { icon: "🎬", title: "Epic Reveals", desc: "Present winners in style" },
         ].map((feature) => (
-          <div key={feature.title} className="p-6 text-center">
-            <div className="mb-3 text-4xl">{feature.icon}</div>
-            <h4 className="mb-2 font-display text-lg text-white">{feature.title}</h4>
-            <p className="text-slate-500">{feature.desc}</p>
+          <div key={feature.title} className="p-3 text-center sm:p-6">
+            <div className="mb-2 text-2xl sm:mb-3 sm:text-4xl">{feature.icon}</div>
+            <h4 className="mb-1 font-display text-sm text-white sm:mb-2 sm:text-lg">{feature.title}</h4>
+            <p className="text-xs text-slate-500 sm:text-base">{feature.desc}</p>
           </div>
         ))}
       </div>

@@ -50,16 +50,16 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
   };
 
   return (
-    <div className="mx-auto mt-8 max-w-5xl space-y-8">
+    <div className="mx-auto mt-4 max-w-5xl space-y-6 sm:mt-8 sm:space-y-8">
       {/* Section Header */}
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
         <div>
-          <h2 className="mb-2 font-display text-3xl text-white sm:text-4xl">Your Lobbies</h2>
-          <p className="text-lg text-slate-400">Manage your award ceremonies</p>
+          <h2 className="mb-1 font-display text-2xl text-white sm:mb-2 sm:text-3xl md:text-4xl">Your Lobbies</h2>
+          <p className="text-sm text-slate-400 sm:text-lg">Manage your award ceremonies</p>
         </div>
         <button
           onClick={() => setShowCreateForm(true)}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary flex items-center gap-2 touch-target"
         >
           <Plus className="h-5 w-5" />
           Create Lobby
@@ -68,16 +68,16 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
 
       {/* Create Form Modal */}
       {showCreateForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/80 p-4 backdrop-blur-sm">
-          <div className="glass-card-highlight animate-in fade-in zoom-in w-full max-w-md p-8 duration-200 sm:p-10">
-            <div className="mb-8 flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-500/20">
-                <span className="text-3xl">🎬</span>
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+          <div className="glass-card-highlight animate-in fade-in slide-in-from-bottom w-full max-w-md rounded-t-3xl p-6 duration-300 sm:rounded-2xl sm:p-8 md:p-10">
+            <div className="mb-6 flex items-center gap-3 sm:mb-8 sm:gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold-500/20 sm:h-14 sm:w-14 sm:rounded-2xl">
+                <span className="text-2xl sm:text-3xl">🎬</span>
               </div>
-              <h3 className="font-display text-2xl text-white sm:text-3xl">New Lobby</h3>
+              <h3 className="font-display text-xl text-white sm:text-2xl md:text-3xl">New Lobby</h3>
             </div>
 
-            <form onSubmit={handleCreateLobby} className="space-y-6">
+            <form onSubmit={handleCreateLobby} className="space-y-5 sm:space-y-6">
               <div>
                 <label className="mb-2 block text-sm font-medium text-slate-300">Lobby Name</label>
                 <input
@@ -94,11 +94,11 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
                 <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
-                  className="btn-secondary flex-1"
+                  className="btn-secondary flex-1 touch-target"
                 >
                   Cancel
                 </button>
-                <button type="submit" disabled={!lobbyName.trim()} className="btn-primary flex-1">
+                <button type="submit" disabled={!lobbyName.trim()} className="btn-primary flex-1 touch-target">
                   Create
                 </button>
               </div>
@@ -109,31 +109,31 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
 
       {/* Delete Confirmation Modal */}
       {deletingLobby && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/80 p-4 backdrop-blur-sm">
-          <div className="glass-card animate-in fade-in zoom-in w-full max-w-md p-8 duration-200">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/20">
-                <Trash2 className="h-7 w-7 text-red-400" />
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-4">
+          <div className="glass-card animate-in fade-in slide-in-from-bottom w-full max-w-md rounded-t-3xl p-6 duration-300 sm:rounded-2xl sm:p-8">
+            <div className="mb-5 flex items-center gap-3 sm:mb-6 sm:gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/20 sm:h-14 sm:w-14 sm:rounded-2xl">
+                <Trash2 className="h-6 w-6 text-red-400 sm:h-7 sm:w-7" />
               </div>
-              <h3 className="font-display text-2xl text-white">Delete Lobby</h3>
+              <h3 className="font-display text-xl text-white sm:text-2xl">Delete Lobby</h3>
             </div>
 
-            <p className="mb-2 text-slate-300">
+            <p className="mb-2 text-sm text-slate-300 sm:text-base">
               Are you sure you want to delete{" "}
               <span className="font-semibold text-white">"{deletingLobby.name}"</span>?
             </p>
-            <p className="mb-8 text-sm text-slate-500">
+            <p className="mb-6 text-xs text-slate-500 sm:mb-8 sm:text-sm">
               This will permanently delete all friends, awards, and votes. This action cannot be
               undone.
             </p>
 
             <div className="flex gap-3">
-              <button onClick={() => setDeletingLobby(null)} className="btn-secondary flex-1">
+              <button onClick={() => setDeletingLobby(null)} className="btn-secondary flex-1 touch-target">
                 Cancel
               </button>
               <button
                 onClick={handleDeleteLobby}
-                className="flex-1 rounded-xl border border-red-500/30 bg-red-500/20 px-6 py-3 font-semibold text-red-400 transition-all hover:bg-red-500/30"
+                className="flex-1 rounded-xl border border-red-500/30 bg-red-500/20 px-4 py-3 font-semibold text-red-400 transition-all hover:bg-red-500/30 touch-target sm:px-6"
               >
                 Delete Lobby
               </button>
@@ -143,7 +143,7 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
       )}
 
       {/* Lobbies Grid */}
-      <div className="grid gap-4">
+      <div className="grid gap-3 sm:gap-4">
         {lobbies.map((lobby) => (
           <LobbyCard
             key={lobby._id}
@@ -156,11 +156,11 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
         ))}
 
         {lobbies.length === 0 && !showCreateForm && (
-          <div className="glass-card p-12 text-center">
-            <div className="mb-4 text-5xl">🎭</div>
-            <h3 className="mb-2 font-display text-xl font-semibold text-white">No lobbies yet</h3>
-            <p className="mb-6 text-slate-400">Create your first lobby to start the fun!</p>
-            <button onClick={() => setShowCreateForm(true)} className="btn-primary">
+          <div className="glass-card p-8 text-center sm:p-12">
+            <div className="mb-3 text-4xl sm:mb-4 sm:text-5xl">🎭</div>
+            <h3 className="mb-2 font-display text-lg font-semibold text-white sm:text-xl">No lobbies yet</h3>
+            <p className="mb-5 text-sm text-slate-400 sm:mb-6 sm:text-base">Create your first lobby to start the fun!</p>
+            <button onClick={() => setShowCreateForm(true)} className="btn-primary touch-target">
               Create Your First Lobby
             </button>
           </div>
@@ -194,50 +194,50 @@ function LobbyCard({
 
   return (
     <div
-      className={`glass-card hover-lift cursor-pointer p-6 transition-all duration-300 ${
+      className={`glass-card cursor-pointer p-4 transition-all duration-300 active:scale-[0.99] sm:p-6 ${
         isSelected ? "bg-navy-800/70 ring-2 ring-gold-400/50" : ""
       }`}
       onClick={onSelect}
     >
-      <div className="flex flex-col items-start justify-between gap-4 sm:flex-row">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <div className="min-w-0 flex-1">
-          <h3 className="mb-3 truncate font-display text-xl font-semibold text-white">
+          <h3 className="mb-2 truncate font-display text-lg font-semibold text-white sm:mb-3 sm:text-xl">
             {lobby.name}
           </h3>
 
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button
               onClick={copyShareCode}
-              className="group inline-flex items-center gap-2 rounded-lg border border-navy-600 bg-navy-900/80 px-3 py-1.5 transition-colors hover:border-gold-400/30"
+              className="group inline-flex items-center gap-2 rounded-lg border border-navy-600 bg-navy-900/80 px-3 py-2 transition-colors active:bg-navy-800 sm:py-1.5"
             >
-              <span className="font-mono tracking-wider text-gold-400">{lobby.shareCode}</span>
+              <span className="font-mono text-sm tracking-wider text-gold-400 sm:text-base">{lobby.shareCode}</span>
               <Copy className="h-4 w-4 text-slate-500 transition-colors group-hover:text-gold-400" />
             </button>
 
             {lobby.isVotingOpen ? (
-              <span className="badge-success">
-                <span className="mr-2 h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+              <span className="badge-success text-xs sm:text-sm">
+                <span className="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 sm:mr-2" />
                 Voting Open
               </span>
             ) : lobby.isPresentationMode ? (
-              <span className="badge-info">
-                <span className="mr-2 h-1.5 w-1.5 rounded-full bg-sky-400" />
+              <span className="badge-info text-xs sm:text-sm">
+                <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-sky-400 sm:mr-2" />
                 Presenting
               </span>
             ) : (
-              <span className="badge-neutral">Setup Mode</span>
+              <span className="badge-neutral text-xs sm:text-sm">Setup Mode</span>
             )}
           </div>
         </div>
 
-        <div className="flex gap-2 self-start">
+        <div className="flex gap-2 self-stretch border-t border-navy-700/50 pt-3 sm:self-start sm:border-0 sm:pt-0">
           {lobby.isPresentationMode && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onViewPresentation();
               }}
-              className="btn-primary py-2 text-sm"
+              className="btn-primary flex-1 py-2.5 text-sm sm:flex-none sm:py-2"
             >
               View Show
             </button>
@@ -247,7 +247,7 @@ function LobbyCard({
               e.stopPropagation();
               onSelect();
             }}
-            className="btn-secondary py-2 text-sm"
+            className="btn-secondary flex-1 py-2.5 text-sm sm:flex-none sm:py-2"
           >
             {isSelected ? "Collapse" : "Manage"}
           </button>
@@ -256,7 +256,7 @@ function LobbyCard({
               e.stopPropagation();
               onDelete();
             }}
-            className="rounded-xl p-2 text-slate-500 transition-all hover:bg-red-500/10 hover:text-red-400"
+            className="flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition-all active:bg-red-500/20 sm:h-auto sm:w-auto sm:p-2 sm:hover:bg-red-500/10 sm:hover:text-red-400"
             title="Delete lobby"
           >
             <Trash2 className="h-5 w-5" />
@@ -365,72 +365,72 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
   const canStartPresentation = !lobby.isVotingOpen && votingProgress.some((p) => p.voterCount > 0);
 
   return (
-    <div className="glass-card animate-in fade-in slide-in-from-top-4 space-y-8 p-6 duration-300 sm:p-8">
+    <div className="glass-card animate-in fade-in slide-in-from-top-4 space-y-5 p-4 duration-300 sm:space-y-8 sm:p-6 md:p-8">
       {/* Header with Actions */}
-      <div className="flex flex-col items-start justify-between gap-4 border-b border-navy-700/50 pb-6 sm:flex-row sm:items-center">
+      <div className="flex flex-col items-start justify-between gap-3 border-b border-navy-700/50 pb-5 sm:flex-row sm:items-center sm:gap-4 sm:pb-6">
         <div>
-          <h3 className="mb-1 font-display text-2xl font-semibold text-white">{lobby.name}</h3>
-          <p className="text-sm text-slate-400">Configure your awards ceremony</p>
+          <h3 className="mb-1 font-display text-xl font-semibold text-white sm:text-2xl">{lobby.name}</h3>
+          <p className="text-xs text-slate-400 sm:text-sm">Configure your awards ceremony</p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:gap-3">
           <button
             onClick={handleToggleVoting}
             disabled={!canStartVoting}
-            className={`rounded-xl px-5 py-2.5 font-semibold transition-all duration-300 ${
+            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-5 sm:text-base ${
               lobby.isVotingOpen
-                ? "border border-red-500/30 bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                ? "border border-red-500/30 bg-red-500/20 text-red-400 active:bg-red-500/30"
                 : canStartVoting
-                  ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
+                  ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-400 active:bg-emerald-500/30"
                   : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
             }`}
           >
-            {lobby.isVotingOpen ? "⏹ Close Voting" : "▶ Open Voting"}
+            {lobby.isVotingOpen ? "⏹ Close" : "▶ Open Voting"}
           </button>
 
           <button
             onClick={handleStartPresentation}
             disabled={!canStartPresentation}
-            className={`rounded-xl px-5 py-2.5 font-semibold transition-all duration-300 ${
+            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-5 sm:text-base ${
               canStartPresentation
-                ? "border border-sky-500/30 bg-sky-500/20 text-sky-400 hover:bg-sky-500/30"
+                ? "border border-sky-500/30 bg-sky-500/20 text-sky-400 active:bg-sky-500/30"
                 : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
             }`}
           >
-            🎬 Start Presentation
+            🎬 Present
           </button>
         </div>
       </div>
 
-      {/* Two Column Layout */}
-      <div className="grid gap-8 md:grid-cols-2">
+      {/* Two Column Layout - stacked on mobile */}
+      <div className="grid gap-6 md:grid-cols-2 md:gap-8">
         {/* Friends Section */}
         <div className="flex flex-col">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="text-xl">👥</span>
-            <h4 className="text-lg font-semibold text-white">Friends ({friends.length})</h4>
+          <div className="mb-3 flex items-center gap-2 sm:mb-4">
+            <span className="text-lg sm:text-xl">👥</span>
+            <h4 className="text-base font-semibold text-white sm:text-lg">Friends ({friends.length})</h4>
           </div>
 
-          <form onSubmit={handleAddFriend} className="mb-4">
+          <form onSubmit={handleAddFriend} className="mb-3 sm:mb-4">
             <div className="flex gap-2">
               <input
                 type="text"
                 placeholder="Add a friend's name"
                 value={newFriend}
                 onChange={(e) => setNewFriend(e.target.value)}
-                className="input-field flex-1 py-2.5"
+                className="input-field flex-1 py-3 text-base"
               />
               <button
                 type="submit"
                 disabled={!newFriend.trim()}
-                className="btn-primary px-4 py-2.5"
+                className="btn-primary px-4 py-3"
               >
                 Add
               </button>
             </div>
           </form>
 
-          <div className="custom-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto pr-2" style={{ maxHeight: "320px" }}>
+          <div className="custom-scrollbar -mx-1 min-h-0 flex-1 space-y-2 overflow-y-auto px-1" style={{ maxHeight: "280px" }}>
             {friends.map((friend) => (
               <FriendItem
                 key={friend._id}
@@ -449,27 +449,27 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
 
         {/* Awards Section */}
         <div className="flex flex-col">
-          <div className="mb-4 flex items-center gap-2">
-            <span className="text-xl">🏆</span>
-            <h4 className="text-lg font-semibold text-white">Awards ({awards.length})</h4>
+          <div className="mb-3 flex items-center gap-2 sm:mb-4">
+            <span className="text-lg sm:text-xl">🏆</span>
+            <h4 className="text-base font-semibold text-white sm:text-lg">Awards ({awards.length})</h4>
           </div>
 
-          <form onSubmit={handleAddAward} className="mb-4">
+          <form onSubmit={handleAddAward} className="mb-3 sm:mb-4">
             <div className="flex gap-2">
               <input
                 type="text"
                 placeholder="Most likely to..."
                 value={newAward}
                 onChange={(e) => setNewAward(e.target.value)}
-                className="input-field flex-1 py-2.5"
+                className="input-field flex-1 py-3 text-base"
               />
-              <button type="submit" disabled={!newAward.trim()} className="btn-primary px-4 py-2.5">
+              <button type="submit" disabled={!newAward.trim()} className="btn-primary px-4 py-3">
                 Add
               </button>
             </div>
           </form>
 
-          <div className="custom-scrollbar min-h-0 flex-1 space-y-3 overflow-y-auto pr-2" style={{ maxHeight: "320px" }}>
+          <div className="custom-scrollbar -mx-1 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 sm:space-y-3" style={{ maxHeight: "280px" }}>
             {awards.map((award) => {
               const progress = votingProgress.find((p) => p.awardId === award._id);
               return (
@@ -494,11 +494,11 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
 
       {/* Requirements Notice */}
       {!canStartVoting && (
-        <div className="flex items-start gap-3 rounded-xl border border-amber-500/20 bg-amber-500/10 p-4">
-          <span className="text-xl text-amber-400">💡</span>
+        <div className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 sm:gap-3 sm:p-4">
+          <span className="text-lg text-amber-400 sm:text-xl">💡</span>
           <div>
-            <p className="font-medium text-amber-200">Ready to start?</p>
-            <p className="text-sm text-amber-200/70">
+            <p className="text-sm font-medium text-amber-200 sm:text-base">Ready to start?</p>
+            <p className="text-xs text-amber-200/70 sm:text-sm">
               Add at least 2 friends and 1 award to open voting.
             </p>
           </div>
@@ -540,13 +540,13 @@ function AwardItem({
   return (
     <div className="overflow-hidden rounded-xl border border-navy-700/50 bg-navy-900/50">
       {/* Award Header */}
-      <div className="group p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <span className="text-slate-200">{award.question}</span>
+      <div className="group p-3 sm:p-4">
+        <div className="flex items-start justify-between gap-2 sm:gap-3">
+          <div className="min-w-0 flex-1">
+            <span className="text-sm text-slate-200 sm:text-base">{award.question}</span>
             {voteCount > 0 && (
-              <div className="mt-1 flex items-center gap-1 text-sm text-gold-400">
-                <Star className="h-3.5 w-3.5 fill-current" />
+              <div className="mt-1 flex items-center gap-1 text-xs text-gold-400 sm:text-sm">
+                <Star className="h-3 w-3 fill-current sm:h-3.5 sm:w-3.5" />
                 {voteCount} vote{voteCount !== 1 ? "s" : ""}
               </div>
             )}
@@ -554,10 +554,10 @@ function AwardItem({
           <div className="flex items-center gap-1">
             <button
               onClick={() => setIsExpanded(!isExpanded)}
-              className={`rounded-lg p-1.5 transition-colors ${
+              className={`flex h-9 w-9 items-center justify-center rounded-lg transition-colors sm:h-8 sm:w-8 ${
                 hasCustomNominees
-                  ? "bg-gold-500/10 text-gold-400 hover:bg-gold-500/20"
-                  : "text-slate-500 hover:bg-navy-700 hover:text-slate-300"
+                  ? "bg-gold-500/10 text-gold-400 active:bg-gold-500/20"
+                  : "text-slate-500 active:bg-navy-700 sm:hover:bg-navy-700 sm:hover:text-slate-300"
               }`}
               title="Select nominees"
             >
@@ -565,7 +565,7 @@ function AwardItem({
             </button>
             <button
               onClick={onRemove}
-              className="rounded-lg p-1.5 text-slate-500 opacity-0 transition-colors hover:bg-red-500/10 hover:text-red-400 group-hover:opacity-100"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 opacity-100 transition-colors active:bg-red-500/20 sm:h-8 sm:w-8 sm:opacity-0 sm:hover:bg-red-500/10 sm:hover:text-red-400 sm:group-hover:opacity-100"
             >
               <X className="h-4 w-4" />
             </button>
@@ -602,14 +602,14 @@ function AwardItem({
 
       {/* Expandable Nominee Selector */}
       {isExpanded && (
-        <div className="border-t border-navy-700/50 bg-navy-950/30 p-4">
+        <div className="border-t border-navy-700/50 bg-navy-950/30 p-3 sm:p-4">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
               Select Nominees
             </span>
             <button
               onClick={selectAll}
-              className="text-xs text-gold-400 transition-colors hover:text-gold-300"
+              className="rounded-lg px-2 py-1 text-xs text-gold-400 transition-colors active:bg-gold-500/10"
             >
               {hasCustomNominees ? "Select All" : "All Selected"}
             </button>
@@ -622,10 +622,10 @@ function AwardItem({
                 <button
                   key={friend._id}
                   onClick={() => toggleNominee(friend._id)}
-                  className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
+                  className={`rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95 sm:py-1.5 ${
                     isSelected
                       ? "border border-gold-500/30 bg-gold-500/20 text-gold-400"
-                      : "border border-navy-700 bg-navy-800 text-slate-500 hover:border-navy-600"
+                      : "border border-navy-700 bg-navy-800 text-slate-500 active:border-navy-600"
                   }`}
                 >
                   {friend.name}
@@ -655,7 +655,7 @@ function FriendItem({
   onImageUpload: (file: File) => void;
 }) {
   return (
-    <div className="group rounded-xl border border-navy-700/50 bg-navy-900/50 p-3 transition-colors hover:border-navy-600">
+    <div className="group rounded-xl border border-navy-700/50 bg-navy-900/50 p-3 transition-colors active:bg-navy-800/50 sm:hover:border-navy-600">
       <div className="flex items-center gap-3">
         <div className="flex-shrink-0">
           {friend.imageUrl ? (
@@ -673,11 +673,11 @@ function FriendItem({
           )}
         </div>
 
-        <span className="flex-1 truncate font-medium text-slate-200">{friend.name}</span>
+        <span className="flex-1 truncate text-sm font-medium text-slate-200 sm:text-base">{friend.name}</span>
 
-        <div className="flex gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-          <label className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-navy-700">
-            <ImageIcon className="h-4 w-4 text-slate-400 hover:text-gold-400" />
+        <div className="flex gap-1 opacity-100 sm:opacity-0 sm:transition-opacity sm:group-hover:opacity-100">
+          <label className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg transition-colors active:bg-navy-600 sm:h-8 sm:w-8 sm:hover:bg-navy-700">
+            <ImageIcon className="h-5 w-5 text-slate-400 sm:h-4 sm:w-4" />
             <input
               type="file"
               accept="image/*"
@@ -690,9 +690,9 @@ function FriendItem({
           </label>
           <button
             onClick={onRemove}
-            className="rounded-lg p-2 transition-colors hover:bg-red-500/20"
+            className="flex h-10 w-10 items-center justify-center rounded-lg transition-colors active:bg-red-500/30 sm:h-8 sm:w-8 sm:hover:bg-red-500/20"
           >
-            <Trash2 className="h-4 w-4 text-slate-400 hover:text-red-400" />
+            <Trash2 className="h-5 w-5 text-slate-400 sm:h-4 sm:w-4" />
           </button>
         </div>
       </div>
