@@ -297,7 +297,7 @@ function HomePage() {
       <div className="mx-auto mt-12 grid max-w-3xl grid-cols-3 gap-2 sm:mt-20 sm:gap-6">
         {[
           { icon: "🎭", title: "Fun Awards", desc: "Create hilarious categories" },
-          { icon: "🗳️", title: "Easy Voting", desc: "Friends vote in seconds" },
+          { icon: "🗳️", title: "Easy Voting", desc: "Vote in seconds" },
           { icon: "🎬", title: "Epic Reveals", desc: "Present winners in style" },
         ].map((feature) => (
           <div key={feature.title} className="p-3 text-center sm:p-6">

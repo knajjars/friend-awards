@@ -16,6 +16,7 @@ import {
   Check,
   Share2,
   RotateCcw,
+  Gamepad,
 } from "lucide-react";
 
 interface LobbyDashboardProps {
@@ -482,9 +483,9 @@ function LobbyManager({
     try {
       await addFriend({ lobbyId, name: newFriend.trim() });
       setNewFriend("");
-      toast.success("Friend added!");
+      toast.success("Nominee added!");
     } catch (error) {
-      toast.error("Failed to add friend");
+      toast.error("Failed to add nominee");
     }
   };
 
@@ -585,7 +586,7 @@ function LobbyManager({
       {/* Control Panel */}
       <div className="glass-card p-4 sm:p-5">
         <div className="mb-3 flex items-center gap-2">
-          <span className="text-lg">🎮</span>
+          <Gamepad className="h-5 w-5" />
           <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Controls</h4>
         </div>
 
@@ -636,7 +637,7 @@ function LobbyManager({
           <div className="mt-4 flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3">
             <span className="text-base text-amber-400">💡</span>
             <p className="text-xs text-amber-200/70 sm:text-sm">
-              Add at least 2 friends and 1 award to open voting.
+              Add at least 2 nominees and 1 award to open voting.
             </p>
           </div>
         )}
@@ -681,12 +682,12 @@ function LobbyManager({
 
       {/* Two Column Layout - stacked on mobile */}
       <div className="grid gap-4 md:grid-cols-2 md:gap-6">
-        {/* Friends Section */}
+        {/* Nominees Section */}
         <div className="glass-card flex flex-col p-4 sm:p-5">
           <div className="mb-4 flex items-center gap-2">
             <span className="text-xl">👥</span>
             <h4 className="text-base font-semibold text-white sm:text-lg">
-              Friends ({friends.length})
+              Nominees ({friends.length})
             </h4>
           </div>
 
@@ -694,7 +695,7 @@ function LobbyManager({
             <div className="flex gap-2">
               <input
                 type="text"
-                placeholder="Add a friend's name"
+                placeholder="Add a nominee's name"
                 value={newFriend}
                 onChange={(e) => setNewFriend(e.target.value)}
                 className="input-field flex-1 py-3 text-base"
@@ -719,7 +720,7 @@ function LobbyManager({
             ))}
             {friends.length === 0 && (
               <p className="py-8 text-center text-sm text-slate-500">
-                Add friends to nominate for awards
+                Add nominees to vote on for awards
               </p>
             )}
           </div>
@@ -992,7 +993,7 @@ function AwardItem({
 
           {friends.length === 0 && (
             <p className="py-2 text-center text-sm text-slate-500">
-              Add friends first to assign nominees
+              Add nominees first to assign to this award
             </p>
           )}
         </div>
@@ -1049,7 +1050,7 @@ function FriendItem({
           <button
             onClick={onRemove}
             className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-500 transition-all hover:bg-red-500/15 hover:text-red-400 active:scale-90 active:bg-red-500/25 active:text-red-400 sm:h-9 sm:w-9"
-            title="Remove friend"
+            title="Remove nominee"
           >
             <Trash2 className="h-5 w-5 sm:h-4 sm:w-4" />
           </button>

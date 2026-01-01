@@ -213,7 +213,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
             <div className="py-6 text-center sm:py-8">
               <div className="mb-3 text-3xl sm:text-4xl">🤷</div>
               <p className="text-sm text-slate-400 sm:text-base">
-                No friends added to this lobby yet.
+                No nominees added to this lobby yet.
               </p>
               <p className="mt-2 text-xs text-slate-500 sm:text-sm">
                 Ask the host to add participants first!
