@@ -23,9 +23,14 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   const lobby = useQuery(api.lobbies.getLobbyByShareCode, { shareCode });
   const friendsQuery = useQuery(api.friends.getFriends, lobby ? { lobbyId: lobby._id } : "skip");
   const awardsQuery = useQuery(api.awards.getAwards, lobby ? { lobbyId: lobby._id } : "skip");
+  const votersWhoVoted = useQuery(
+    api.votes.getVotersWhoVoted,
+    lobby ? { lobbyId: lobby._id } : "skip"
+  );
 
   const friends = friendsQuery || [];
   const awards = awardsQuery || [];
+  const votedVoterNames = new Set(votersWhoVoted || []);
 
   // Check if data is still loading
   const isLoading =
@@ -189,37 +194,64 @@ export function VotingPage({ shareCode }: VotingPageProps) {
                 Select yourself:
               </label>
               <div className="custom-scrollbar -mx-1 max-h-[55vh] space-y-2 overflow-y-auto px-1 sm:max-h-[50vh]">
-                {friends.map((friend) => (
-                  <button
-                    key={friend._id}
-                    onClick={() => handleSelectIdentity(friend._id, friend.name)}
-                    className="group flex w-full items-center gap-3 rounded-xl border border-navy-600 bg-navy-800/80 p-3 text-left transition-all duration-200 active:scale-[0.98] active:bg-gold-500/10 sm:gap-4 sm:p-4 sm:hover:border-gold-400/30 sm:hover:bg-gradient-to-r sm:hover:from-gold-500/20 sm:hover:to-amber-500/20"
-                  >
-                    {/* Avatar */}
-                    <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 transition-all group-hover:from-gold-500/50 group-hover:to-amber-500/50 sm:h-12 sm:w-12">
-                      {friend.imageUrl ? (
-                        <img
-                          src={friend.imageUrl}
-                          alt={friend.name}
-                          className="h-full w-full rounded-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-base font-semibold text-gold-400 sm:text-lg">
-                          {friend.name.charAt(0).toUpperCase()}
+                {friends.map((friend) => {
+                  const hasAlreadyVoted = votedVoterNames.has(friend.name);
+
+                  return (
+                    <button
+                      key={friend._id}
+                      onClick={() => handleSelectIdentity(friend._id, friend.name)}
+                      disabled={hasAlreadyVoted}
+                      className={`group flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 sm:gap-4 sm:p-4 ${
+                        hasAlreadyVoted
+                          ? "cursor-not-allowed border-navy-700 bg-navy-800/40"
+                          : "border-navy-600 bg-navy-800/80 active:scale-[0.98] active:bg-gold-500/10 sm:hover:border-gold-400/30 sm:hover:bg-gradient-to-r sm:hover:from-gold-500/20 sm:hover:to-amber-500/20"
+                      }`}
+                    >
+                      {/* Avatar */}
+                      <div
+                        className={`flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full transition-all sm:h-12 sm:w-12 ${
+                          hasAlreadyVoted
+                            ? "bg-slate-700/50"
+                            : "bg-gradient-to-br from-gold-500/30 to-amber-500/30 group-hover:from-gold-500/50 group-hover:to-amber-500/50"
+                        }`}
+                      >
+                        {friend.imageUrl ? (
+                          <img
+                            src={friend.imageUrl}
+                            alt={friend.name}
+                            className={`h-full w-full rounded-full object-cover ${hasAlreadyVoted ? "opacity-50 grayscale" : ""}`}
+                          />
+                        ) : (
+                          <span
+                            className={`text-base font-semibold sm:text-lg ${hasAlreadyVoted ? "text-slate-500" : "text-gold-400"}`}
+                          >
+                            {friend.name.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        <span
+                          className={`block truncate text-sm font-medium sm:text-base ${hasAlreadyVoted ? "text-slate-500" : "text-slate-200 group-hover:text-white"}`}
+                        >
+                          {friend.name}
                         </span>
+                        <span
+                          className={`text-xs ${hasAlreadyVoted ? "text-emerald-500/70" : "text-slate-500"}`}
+                        >
+                          {hasAlreadyVoted ? "Already voted ✓" : "Tap to continue"}
+                        </span>
+                      </div>
+
+                      {hasAlreadyVoted ? (
+                        <Check className="h-5 w-5 flex-shrink-0 text-emerald-500/70" />
+                      ) : (
+                        <ChevronRight className="h-5 w-5 flex-shrink-0 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-gold-400" />
                       )}
-                    </div>
-
-                    <div className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-slate-200 group-hover:text-white sm:text-base">
-                        {friend.name}
-                      </span>
-                      <span className="text-xs text-slate-500">Tap to continue</span>
-                    </div>
-
-                    <ChevronRight className="h-5 w-5 flex-shrink-0 text-slate-500 transition-transform group-hover:translate-x-1 group-hover:text-gold-400" />
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}

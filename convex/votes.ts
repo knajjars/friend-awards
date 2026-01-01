@@ -125,6 +125,22 @@ export const getVotingProgress = query({
   },
 });
 
+export const getVotersWhoVoted = query({
+  args: {
+    lobbyId: v.id("lobbies"),
+  },
+  handler: async (ctx, args) => {
+    const votes = await ctx.db
+      .query("votes")
+      .withIndex("by_lobby_and_award", (q) => q.eq("lobbyId", args.lobbyId))
+      .collect();
+
+    // Return unique voter names who have cast at least one vote
+    const voterNames = new Set(votes.map((v) => v.voterName));
+    return Array.from(voterNames);
+  },
+});
+
 export const clearAllVotes = mutation({
   args: {
     lobbyId: v.id("lobbies"),
