@@ -1,5 +1,6 @@
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
+import { getAuthUserId } from "@convex-dev/auth/server";
 
 export const castVote = mutation({
   args: {
@@ -121,5 +122,35 @@ export const getVotingProgress = query({
       question: award.question,
       voterCount: votersByAward[award._id]?.size || 0,
     }));
+  },
+});
+
+export const clearAllVotes = mutation({
+  args: {
+    lobbyId: v.id("lobbies"),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Must be logged in");
+    }
+
+    const lobby = await ctx.db.get(args.lobbyId);
+    if (!lobby || lobby.creatorId !== userId) {
+      throw new Error("Not authorized");
+    }
+
+    // Get all votes for this lobby and delete them
+    const votes = await ctx.db
+      .query("votes")
+      .withIndex("by_lobby_and_award", (q) => q.eq("lobbyId", args.lobbyId))
+      .collect();
+
+    for (const vote of votes) {
+      await ctx.db.delete(vote._id);
+    }
+
+    return null;
   },
 });

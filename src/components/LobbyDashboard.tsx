@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { Id } from "../../convex/_generated/dataModel";
+import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Trash2,
@@ -14,17 +15,18 @@ import {
   Pencil,
   Check,
   Share2,
-  Link,
+  RotateCcw,
 } from "lucide-react";
 
 interface LobbyDashboardProps {
-  onViewPresentation: (lobbyId: string) => void;
+  lobbyId?: string;
+  onNavigateToPresentation?: (lobbyId: string) => void;
 }
 
-export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
+export function LobbyDashboard({ lobbyId, onNavigateToPresentation }: LobbyDashboardProps) {
+  const navigate = useNavigate();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [lobbyName, setLobbyName] = useState("");
-  const [selectedLobby, setSelectedLobby] = useState<string>("");
   const [deletingLobby, setDeletingLobby] = useState<{ id: string; name: string } | null>(null);
 
   const lobbies = useQuery(api.lobbies.getUserLobbies) || [];
@@ -37,10 +39,11 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
 
     try {
       const result = await createLobby({ name: lobbyName.trim() });
-      toast.success(`Lobby created! Share code: ${result.shareCode}`);
+      toast.success(`Lobby created!`);
       setLobbyName("");
       setShowCreateForm(false);
-      setSelectedLobby(result.lobbyId);
+      // Navigate to the new lobby's management page
+      navigate(`/host/${result.lobbyId}`);
     } catch (error) {
       toast.error("Failed to create lobby");
     }
@@ -52,17 +55,128 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
     try {
       await deleteLobby({ lobbyId: deletingLobby.id as Id<"lobbies"> });
       toast.success("Lobby deleted");
-      if (selectedLobby === deletingLobby.id) {
-        setSelectedLobby("");
-      }
       setDeletingLobby(null);
+      // If we deleted the lobby we're currently viewing, go back to list
+      if (lobbyId === deletingLobby.id) {
+        navigate("/host");
+      }
     } catch (error) {
       toast.error("Failed to delete lobby");
     }
   };
 
+  const selectedLobbyData = lobbyId ? lobbies.find((l) => l._id === lobbyId) : null;
+
+  // Lobby Management View - when lobbyId is provided via URL
+  if (lobbyId && selectedLobbyData) {
+    const handleNavigateToPresentation = () => {
+      if (onNavigateToPresentation) {
+        onNavigateToPresentation(lobbyId);
+      } else {
+        navigate(`/present/${lobbyId}`);
+      }
+    };
+
+    return (
+      <div className="mx-auto max-w-5xl">
+        {/* Lobby Header Card */}
+        <div className="glass-card-highlight mb-6 p-4 sm:p-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0 flex-1">
+              <h1 className="mb-2 truncate font-display text-2xl font-bold text-white sm:text-3xl">
+                {selectedLobbyData.name}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                <ShareCodeButton
+                  shareCode={selectedLobbyData.shareCode}
+                  lobbyName={selectedLobbyData.name}
+                />
+                {selectedLobbyData.isVotingOpen ? (
+                  <span className="badge-success">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+                    Voting Open
+                  </span>
+                ) : selectedLobbyData.isPresentationMode ? (
+                  <span className="badge-info">
+                    <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
+                    Presenting
+                  </span>
+                ) : (
+                  <span className="badge-neutral">Setup Mode</span>
+                )}
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              {selectedLobbyData.isPresentationMode && (
+                <button
+                  onClick={handleNavigateToPresentation}
+                  className="btn-primary py-2.5 text-sm sm:py-2"
+                >
+                  View Show
+                </button>
+              )}
+              <button
+                onClick={() => setDeletingLobby({ id: lobbyId, name: selectedLobbyData.name })}
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-red-500/10 hover:text-red-400"
+                title="Delete lobby"
+              >
+                <Trash2 className="h-5 w-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Lobby Manager */}
+        <LobbyManager
+          lobbyId={lobbyId as Id<"lobbies">}
+          onNavigateToPresentation={handleNavigateToPresentation}
+        />
+
+        {/* Delete Confirmation Modal */}
+        {deletingLobby && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/80 p-4 backdrop-blur-sm">
+            <div className="glass-card animate-in fade-in zoom-in-95 w-full max-w-md rounded-2xl p-6 duration-300 sm:p-8">
+              <div className="mb-5 flex items-center gap-3 sm:mb-6 sm:gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/20 sm:h-14 sm:w-14 sm:rounded-2xl">
+                  <Trash2 className="h-6 w-6 text-red-400 sm:h-7 sm:w-7" />
+                </div>
+                <h3 className="font-display text-xl text-white sm:text-2xl">Delete Lobby</h3>
+              </div>
+
+              <p className="mb-2 text-sm text-slate-300 sm:text-base">
+                Are you sure you want to delete{" "}
+                <span className="font-semibold text-white">"{deletingLobby.name}"</span>?
+              </p>
+              <p className="mb-6 text-xs text-slate-500 sm:mb-8 sm:text-sm">
+                This will permanently delete all friends, awards, and votes. This action cannot be
+                undone.
+              </p>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setDeletingLobby(null)}
+                  className="btn-secondary touch-target flex-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleDeleteLobby}
+                  className="touch-target flex-1 rounded-xl border border-red-500/30 bg-red-500/20 px-4 py-3 font-semibold text-red-400 transition-all hover:bg-red-500/30 sm:px-6"
+                >
+                  Delete Lobby
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // Lobby List View - when no lobbyId is provided
   return (
-    <div className="mx-auto mt-4 max-w-5xl space-y-6 sm:mt-8 sm:space-y-8">
+    <div className="mx-auto max-w-5xl space-y-6 sm:space-y-8">
       {/* Section Header */}
       <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center sm:gap-4">
         <div>
@@ -82,8 +196,8 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
 
       {/* Create Form Modal */}
       {showCreateForm && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-          <div className="glass-card-highlight animate-in fade-in slide-in-from-bottom w-full max-w-md rounded-t-3xl p-6 duration-300 sm:rounded-2xl sm:p-8 md:p-10">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/80 p-4 backdrop-blur-sm">
+          <div className="glass-card-highlight animate-in fade-in zoom-in-95 w-full max-w-md rounded-2xl p-6 duration-300 sm:p-8 md:p-10">
             <div className="mb-6 flex items-center gap-3 sm:mb-8 sm:gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-gold-500/20 sm:h-14 sm:w-14 sm:rounded-2xl">
                 <span className="text-2xl sm:text-3xl">🎬</span>
@@ -127,8 +241,8 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
 
       {/* Delete Confirmation Modal */}
       {deletingLobby && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-navy-950/80 p-0 backdrop-blur-sm sm:items-center sm:p-4">
-          <div className="glass-card animate-in fade-in slide-in-from-bottom w-full max-w-md rounded-t-3xl p-6 duration-300 sm:rounded-2xl sm:p-8">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/80 p-4 backdrop-blur-sm">
+          <div className="glass-card animate-in fade-in zoom-in-95 w-full max-w-md rounded-2xl p-6 duration-300 sm:p-8">
             <div className="mb-5 flex items-center gap-3 sm:mb-6 sm:gap-4">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-500/20 sm:h-14 sm:w-14 sm:rounded-2xl">
                 <Trash2 className="h-6 w-6 text-red-400 sm:h-7 sm:w-7" />
@@ -164,178 +278,185 @@ export function LobbyDashboard({ onViewPresentation }: LobbyDashboardProps) {
       )}
 
       {/* Lobbies Grid */}
-      <div className="grid gap-3 sm:gap-4">
+      <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {lobbies.map((lobby) => (
           <LobbyCard
             key={lobby._id}
             lobby={lobby}
-            isSelected={selectedLobby === lobby._id}
-            onSelect={() => setSelectedLobby(selectedLobby === lobby._id ? "" : lobby._id)}
-            onViewPresentation={() => onViewPresentation(lobby._id)}
+            onSelect={() => navigate(`/host/${lobby._id}`)}
+            onViewPresentation={() => navigate(`/present/${lobby._id}`)}
             onDelete={() => setDeletingLobby({ id: lobby._id, name: lobby.name })}
           />
         ))}
-
-        {lobbies.length === 0 && !showCreateForm && (
-          <div className="glass-card p-8 text-center sm:p-12">
-            <div className="mb-3 text-4xl sm:mb-4 sm:text-5xl">🎭</div>
-            <h3 className="mb-2 font-display text-lg font-semibold text-white sm:text-xl">
-              No lobbies yet
-            </h3>
-            <p className="mb-5 text-sm text-slate-400 sm:mb-6 sm:text-base">
-              Create your first lobby to start the fun!
-            </p>
-            <button onClick={() => setShowCreateForm(true)} className="btn-primary touch-target">
-              Create Your First Lobby
-            </button>
-          </div>
-        )}
       </div>
 
-      {/* Lobby Manager Panel */}
-      {selectedLobby && <LobbyManager lobbyId={selectedLobby as Id<"lobbies">} />}
+      {lobbies.length === 0 && !showCreateForm && (
+        <div className="glass-card p-8 text-center sm:p-12">
+          <div className="mb-3 text-4xl sm:mb-4 sm:text-5xl">🎭</div>
+          <h3 className="mb-2 font-display text-lg font-semibold text-white sm:text-xl">
+            No lobbies yet
+          </h3>
+          <p className="mb-5 text-sm text-slate-400 sm:mb-6 sm:text-base">
+            Create your first lobby to start the fun!
+          </p>
+          <button onClick={() => setShowCreateForm(true)} className="btn-primary touch-target">
+            Create Your First Lobby
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Share code button component
+function ShareCodeButton({ shareCode, lobbyName }: { shareCode: string; lobbyName: string }) {
+  const shareUrl = `${window.location.origin}/vote/${shareCode}`;
+
+  const copyShareCode = () => {
+    navigator.clipboard.writeText(shareCode);
+    toast.success("Code copied!");
+  };
+
+  const copyShareUrl = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Vote on ${lobbyName}`,
+          text: `Join the voting for "${lobbyName}" friend awards!`,
+          url: shareUrl,
+        });
+        return;
+      } catch {
+        // User cancelled or share failed, fall back to clipboard
+      }
+    }
+    navigator.clipboard.writeText(shareUrl);
+    toast.success("Link copied to clipboard!");
+  };
+
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        onClick={copyShareCode}
+        className="group inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-900/80 px-2.5 py-1.5 transition-all hover:border-gold-400/30 active:scale-95"
+        title="Copy code"
+      >
+        <span className="font-mono text-sm tracking-wider text-gold-400">{shareCode}</span>
+        <Copy className="h-3.5 w-3.5 text-slate-500 transition-colors group-hover:text-gold-400" />
+      </button>
+      <button
+        onClick={copyShareUrl}
+        className="group inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-900/80 px-2.5 py-1.5 text-sm text-slate-300 transition-all hover:border-gold-400/30 hover:text-white active:scale-95"
+        title="Share link"
+      >
+        <Share2 className="h-3.5 w-3.5 text-slate-500 transition-colors group-hover:text-gold-400" />
+        <span>Share</span>
+      </button>
     </div>
   );
 }
 
 function LobbyCard({
   lobby,
-  isSelected,
   onSelect,
   onViewPresentation,
   onDelete,
 }: {
   lobby: any;
-  isSelected: boolean;
   onSelect: () => void;
   onViewPresentation: () => void;
   onDelete: () => void;
 }) {
-  const shareUrl = `${window.location.origin}/vote/${lobby.shareCode}`;
-
   const copyShareCode = (e: React.MouseEvent) => {
     e.stopPropagation();
     navigator.clipboard.writeText(lobby.shareCode);
     toast.success("Code copied!");
   };
 
-  const copyShareUrl = async (e: React.MouseEvent) => {
-    e.stopPropagation();
-
-    // Try native share first (mobile)
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `Vote on ${lobby.name}`,
-          text: `Join the voting for "${lobby.name}" friend awards!`,
-          url: shareUrl,
-        });
-        return;
-      } catch (err) {
-        // User cancelled or share failed, fall back to clipboard
-      }
-    }
-
-    // Fall back to clipboard
-    navigator.clipboard.writeText(shareUrl);
-    toast.success("Link copied to clipboard!");
-  };
-
   return (
     <div
-      className={`glass-card cursor-pointer p-4 transition-all duration-300 sm:p-6 ${isSelected ? "bg-navy-800/70 ring-2 ring-gold-400/50" : "hover:bg-navy-800/30"}`}
+      className="glass-card group cursor-pointer p-4 transition-all duration-300 hover:bg-navy-800/50 hover:ring-1 hover:ring-gold-400/30 sm:p-5"
       onClick={onSelect}
     >
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-        <div className="min-w-0 flex-1">
-          <h3 className="mb-2 truncate font-display text-lg font-semibold text-white sm:mb-3 sm:text-xl">
-            {lobby.name}
-          </h3>
+      {/* Status badge - top right */}
+      <div className="mb-3 flex items-start justify-between gap-2">
+        {lobby.isVotingOpen ? (
+          <span className="badge-success">
+            <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
+            Voting Open
+          </span>
+        ) : lobby.isPresentationMode ? (
+          <span className="badge-info">
+            <span className="h-1.5 w-1.5 rounded-full bg-sky-400" />
+            Presenting
+          </span>
+        ) : (
+          <span className="badge-neutral">Setup</span>
+        )}
 
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-            {/* Share code button */}
-            <button
-              onClick={copyShareCode}
-              className="group inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-900/80 px-2.5 py-1.5 transition-all active:scale-95 active:bg-navy-800 sm:gap-2 sm:px-3 sm:py-1.5 sm:hover:border-gold-400/30"
-              title="Copy code"
-            >
-              <span className="font-mono text-sm tracking-wider text-gold-400">
-                {lobby.shareCode}
-              </span>
-              <Copy className="h-3.5 w-3.5 text-slate-500 transition-colors group-hover:text-gold-400 group-active:text-gold-400" />
-            </button>
+        {/* Delete button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
+          className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-600 opacity-0 transition-all hover:bg-red-500/10 hover:text-red-400 group-hover:opacity-100"
+          title="Delete lobby"
+        >
+          <Trash2 className="h-4 w-4" />
+        </button>
+      </div>
 
-            {/* Share link button */}
-            <button
-              onClick={copyShareUrl}
-              className="group inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-900/80 px-2.5 py-1.5 text-sm text-slate-300 transition-all active:scale-95 active:bg-navy-800 sm:px-3 sm:hover:border-gold-400/30 sm:hover:text-white"
-              title="Share link"
-            >
-              <Share2 className="h-3.5 w-3.5 text-slate-500 transition-colors group-hover:text-gold-400 group-active:text-gold-400" />
-              <span className="hidden xs:inline">Share</span>
-            </button>
+      {/* Lobby name */}
+      <h3 className="mb-3 truncate font-display text-lg font-semibold text-white">{lobby.name}</h3>
 
-            {lobby.isVotingOpen ? (
-              <span className="badge-success text-xs sm:text-sm">
-                <span className="mr-1.5 h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 sm:mr-2" />
-                Voting Open
-              </span>
-            ) : lobby.isPresentationMode ? (
-              <span className="badge-info text-xs sm:text-sm">
-                <span className="mr-1.5 h-1.5 w-1.5 rounded-full bg-sky-400 sm:mr-2" />
-                Presenting
-              </span>
-            ) : (
-              <span className="badge-neutral text-xs sm:text-sm">Setup Mode</span>
-            )}
-          </div>
-        </div>
+      {/* Share code */}
+      <button
+        onClick={copyShareCode}
+        className="mb-4 inline-flex items-center gap-1.5 rounded-lg border border-navy-600 bg-navy-900/80 px-2.5 py-1.5 transition-all hover:border-gold-400/30 active:scale-95"
+        title="Copy code"
+      >
+        <span className="font-mono text-sm tracking-wider text-gold-400">{lobby.shareCode}</span>
+        <Copy className="h-3.5 w-3.5 text-slate-500" />
+      </button>
 
-        {/* Actions - separated with more spacing */}
-        <div className="flex items-center gap-2 self-stretch border-t border-navy-700/50 pt-3 sm:gap-3 sm:self-start sm:border-0 sm:pt-0">
-          {lobby.isPresentationMode && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onViewPresentation();
-              }}
-              className="btn-primary flex-1 py-2.5 text-sm transition-transform active:scale-95 sm:flex-none sm:py-2"
-            >
-              View Show
-            </button>
-          )}
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        {lobby.isPresentationMode && (
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onSelect();
+              onViewPresentation();
             }}
-            className="btn-secondary flex-1 py-2.5 text-sm transition-transform active:scale-95 sm:flex-none sm:py-2"
+            className="btn-primary flex-1 py-2 text-sm"
           >
-            {isSelected ? "Collapse" : "Manage"}
+            View Show
           </button>
-
-          {/* Delete button - separated with a divider on mobile */}
-          <div className="ml-1 flex items-center border-l border-navy-700/50 pl-2 sm:ml-2 sm:border-0 sm:pl-0">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition-all hover:bg-red-500/10 hover:text-red-400 active:scale-90 active:bg-red-500/20 active:text-red-400 sm:h-9 sm:w-9"
-              title="Delete lobby"
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
+        )}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect();
+          }}
+          className="btn-secondary flex-1 py-2 text-sm"
+        >
+          Manage
+        </button>
       </div>
     </div>
   );
 }
 
-function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
+function LobbyManager({
+  lobbyId,
+  onNavigateToPresentation,
+}: {
+  lobbyId: Id<"lobbies">;
+  onNavigateToPresentation: () => void;
+}) {
   const [newFriend, setNewFriend] = useState("");
   const [newAward, setNewAward] = useState("");
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   const lobby = useQuery(api.lobbies.getLobby, { lobbyId });
   const friends = useQuery(api.friends.getFriends, { lobbyId }) || [];
@@ -352,6 +473,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
   const updateAward = useMutation(api.awards.updateAward);
   const toggleVoting = useMutation(api.lobbies.toggleVoting);
   const startPresentation = useMutation(api.lobbies.startPresentation);
+  const clearAllVotes = useMutation(api.votes.clearAllVotes);
 
   const handleAddFriend = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -390,10 +512,26 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
 
   const handleStartPresentation = async () => {
     try {
+      // Close voting if open, then start presentation
+      if (lobby?.isVotingOpen) {
+        await toggleVoting({ lobbyId });
+      }
       await startPresentation({ lobbyId });
-      toast.success("Presentation mode started!");
+      toast.success("Starting presentation!");
+      // Navigate to presentation page
+      onNavigateToPresentation();
     } catch (error) {
       toast.error("Failed to start presentation");
+    }
+  };
+
+  const handleClearVotes = async () => {
+    try {
+      await clearAllVotes({ lobbyId });
+      toast.success("All votes have been cleared!");
+      setShowResetConfirm(false);
+    } catch (error) {
+      toast.error("Failed to clear votes");
     }
   };
 
@@ -438,24 +576,24 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
   if (!lobby) return null;
 
   const canStartVoting = friends.length >= 2 && awards.length >= 1;
-  const canStartPresentation = !lobby.isVotingOpen && votingProgress.some((p) => p.voterCount > 0);
+  const canStartPresentation = votingProgress.some((p) => p.voterCount > 0);
+  const hasVotes = votingProgress.some((p) => p.voterCount > 0);
+  const totalVotes = votingProgress.reduce((sum, p) => sum + p.voterCount, 0);
 
   return (
-    <div className="glass-card animate-in fade-in slide-in-from-top-4 space-y-5 p-4 duration-300 sm:space-y-8 sm:p-6 md:p-8">
-      {/* Header with Actions */}
-      <div className="flex flex-col items-start justify-between gap-3 border-b border-navy-700/50 pb-5 sm:flex-row sm:items-center sm:gap-4 sm:pb-6">
-        <div>
-          <h3 className="mb-1 font-display text-xl font-semibold text-white sm:text-2xl">
-            {lobby.name}
-          </h3>
-          <p className="text-xs text-slate-400 sm:text-sm">Configure your awards ceremony</p>
+    <div className="space-y-6">
+      {/* Control Panel */}
+      <div className="glass-card p-4 sm:p-5">
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-lg">🎮</span>
+          <h4 className="text-sm font-semibold uppercase tracking-wide text-slate-400">Controls</h4>
         </div>
 
-        <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:gap-3">
+        <div className="flex flex-wrap gap-2 sm:gap-3">
           <button
             onClick={handleToggleVoting}
             disabled={!canStartVoting}
-            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-5 sm:text-base ${
+            className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-6 sm:text-base ${
               lobby.isVotingOpen
                 ? "border border-red-500/30 bg-red-500/20 text-red-400 active:bg-red-500/30"
                 : canStartVoting
@@ -463,35 +601,96 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
                   : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
             }`}
           >
-            {lobby.isVotingOpen ? "⏹ Close" : "▶ Open Voting"}
+            {lobby.isVotingOpen ? "⏹ Close Voting" : "▶ Open Voting"}
           </button>
 
           <button
             onClick={handleStartPresentation}
             disabled={!canStartPresentation}
-            className={`flex-1 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-5 sm:text-base ${
+            className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-6 sm:text-base ${
               canStartPresentation
                 ? "border border-sky-500/30 bg-sky-500/20 text-sky-400 active:bg-sky-500/30"
                 : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
             }`}
           >
-            🎬 Present
+            🎬 Present Results
+          </button>
+
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            disabled={!hasVotes}
+            className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 sm:px-5 sm:text-base ${
+              hasVotes
+                ? "border border-orange-500/30 bg-orange-500/20 text-orange-400 active:bg-orange-500/30"
+                : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
+            }`}
+            title="Reset all votes"
+          >
+            <RotateCcw className="h-4 w-4" />
+            <span>Reset Votes</span>
           </button>
         </div>
+
+        {/* Requirements Notice */}
+        {!canStartVoting && (
+          <div className="mt-4 flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3">
+            <span className="text-base text-amber-400">💡</span>
+            <p className="text-xs text-amber-200/70 sm:text-sm">
+              Add at least 2 friends and 1 award to open voting.
+            </p>
+          </div>
+        )}
       </div>
 
+      {/* Reset Votes Confirmation Modal */}
+      {showResetConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/80 p-4 backdrop-blur-sm">
+          <div className="glass-card animate-in fade-in zoom-in-95 w-full max-w-md rounded-2xl p-6 duration-300 sm:p-8">
+            <div className="mb-5 flex items-center gap-3 sm:mb-6 sm:gap-4">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-orange-500/20 sm:h-14 sm:w-14 sm:rounded-2xl">
+                <RotateCcw className="h-6 w-6 text-orange-400 sm:h-7 sm:w-7" />
+              </div>
+              <h3 className="font-display text-xl text-white sm:text-2xl">Reset All Votes</h3>
+            </div>
+
+            <p className="mb-2 text-sm text-slate-300 sm:text-base">
+              Are you sure you want to clear all votes for this lobby?
+            </p>
+            <p className="mb-6 text-xs text-slate-500 sm:mb-8 sm:text-sm">
+              This will delete {totalVotes} vote{totalVotes !== 1 ? "s" : ""} across all awards.
+              This action cannot be undone.
+            </p>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowResetConfirm(false)}
+                className="btn-secondary touch-target flex-1"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleClearVotes}
+                className="touch-target flex-1 rounded-xl border border-orange-500/30 bg-orange-500/20 px-4 py-3 font-semibold text-orange-400 transition-all hover:bg-orange-500/30 sm:px-6"
+              >
+                Reset Votes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Two Column Layout - stacked on mobile */}
-      <div className="grid gap-6 md:grid-cols-2 md:gap-8">
+      <div className="grid gap-4 md:grid-cols-2 md:gap-6">
         {/* Friends Section */}
-        <div className="flex flex-col">
-          <div className="mb-3 flex items-center gap-2 sm:mb-4">
-            <span className="text-lg sm:text-xl">👥</span>
+        <div className="glass-card flex flex-col p-4 sm:p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-xl">👥</span>
             <h4 className="text-base font-semibold text-white sm:text-lg">
               Friends ({friends.length})
             </h4>
           </div>
 
-          <form onSubmit={handleAddFriend} className="mb-3 sm:mb-4">
+          <form onSubmit={handleAddFriend} className="mb-4">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -508,7 +707,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
 
           <div
             className="custom-scrollbar -mx-1 min-h-0 flex-1 space-y-2 overflow-y-auto px-1"
-            style={{ maxHeight: "280px" }}
+            style={{ maxHeight: "320px" }}
           >
             {friends.map((friend) => (
               <FriendItem
@@ -519,7 +718,7 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
               />
             ))}
             {friends.length === 0 && (
-              <p className="py-4 text-center text-sm text-slate-500">
+              <p className="py-8 text-center text-sm text-slate-500">
                 Add friends to nominate for awards
               </p>
             )}
@@ -527,15 +726,15 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
         </div>
 
         {/* Awards Section */}
-        <div className="flex flex-col">
-          <div className="mb-3 flex items-center gap-2 sm:mb-4">
-            <span className="text-lg sm:text-xl">🏆</span>
+        <div className="glass-card flex flex-col p-4 sm:p-5">
+          <div className="mb-4 flex items-center gap-2">
+            <span className="text-xl">🏆</span>
             <h4 className="text-base font-semibold text-white sm:text-lg">
               Awards ({awards.length})
             </h4>
           </div>
 
-          <form onSubmit={handleAddAward} className="mb-3 sm:mb-4">
+          <form onSubmit={handleAddAward} className="mb-4">
             <div className="flex gap-2">
               <input
                 type="text"
@@ -551,8 +750,8 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
           </form>
 
           <div
-            className="custom-scrollbar -mx-1 min-h-0 flex-1 space-y-2 overflow-y-auto px-1 sm:space-y-3"
-            style={{ maxHeight: "280px" }}
+            className="custom-scrollbar -mx-1 min-h-0 flex-1 space-y-2 overflow-y-auto px-1"
+            style={{ maxHeight: "320px" }}
           >
             {awards.map((award) => {
               const progress = votingProgress.find((p) => p.awardId === award._id);
@@ -569,26 +768,13 @@ function LobbyManager({ lobbyId }: { lobbyId: Id<"lobbies"> }) {
               );
             })}
             {awards.length === 0 && (
-              <p className="py-4 text-center text-sm text-slate-500">
+              <p className="py-8 text-center text-sm text-slate-500">
                 Add awards for people to vote on
               </p>
             )}
           </div>
         </div>
       </div>
-
-      {/* Requirements Notice */}
-      {!canStartVoting && (
-        <div className="flex items-start gap-2 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 sm:gap-3 sm:p-4">
-          <span className="text-lg text-amber-400 sm:text-xl">💡</span>
-          <div>
-            <p className="text-sm font-medium text-amber-200 sm:text-base">Ready to start?</p>
-            <p className="text-xs text-amber-200/70 sm:text-sm">
-              Add at least 2 friends and 1 award to open voting.
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

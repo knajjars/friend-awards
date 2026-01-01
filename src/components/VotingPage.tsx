@@ -17,6 +17,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
   const [currentAwardIndex, setCurrentAwardIndex] = useState(0);
   const [hasSelectedIdentity, setHasSelectedIdentity] = useState(false);
   const [votedAwards, setVotedAwards] = useState<Set<string>>(new Set());
+  const [selectedVotes, setSelectedVotes] = useState<Record<string, string>>({}); // awardId -> friendId
   const [isCheckingIdentity, setIsCheckingIdentity] = useState(true);
 
   const lobby = useQuery(api.lobbies.getLobbyByShareCode, { shareCode });
@@ -73,6 +74,19 @@ export function VotingPage({ shareCode }: VotingPageProps) {
     const currentAward = awards[currentAwardIndex];
     if (!currentAward) return;
 
+    // Optimistic UI: update state immediately
+    const previousVotedAwards = new Set(votedAwards);
+    const previousSelectedVotes = { ...selectedVotes };
+    const previousIndex = currentAwardIndex;
+
+    setVotedAwards((prev) => new Set([...prev, currentAward._id]));
+    setSelectedVotes((prev) => ({ ...prev, [currentAward._id]: friendId }));
+
+    // Move to next award after 1 second to show selection
+    if (currentAwardIndex < awards.length - 1) {
+      setTimeout(() => setCurrentAwardIndex(currentAwardIndex + 1), 1000);
+    }
+
     try {
       await castVote({
         lobbyId: lobby._id,
@@ -80,16 +94,13 @@ export function VotingPage({ shareCode }: VotingPageProps) {
         friendId: friendId as any,
         voterName: voterName.trim(),
       });
-
-      setVotedAwards((prev) => new Set([...prev, currentAward._id]));
-      toast.success("Vote cast!");
-
-      // Move to next award
-      if (currentAwardIndex < awards.length - 1) {
-        setTimeout(() => setCurrentAwardIndex(currentAwardIndex + 1), 300);
-      }
+      // Vote succeeded - no need to do anything, state already updated
     } catch (error) {
-      toast.error("Failed to cast vote");
+      // Revert optimistic update on failure
+      setVotedAwards(previousVotedAwards);
+      setSelectedVotes(previousSelectedVotes);
+      setCurrentAwardIndex(previousIndex);
+      toast.error("Failed to cast vote. Please try again.");
     }
   };
 
@@ -289,6 +300,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
               setVoterName("");
               setHasSelectedIdentity(false);
               setVotedAwards(new Set());
+              setSelectedVotes({});
               setCurrentAwardIndex(0);
             }}
             className="group flex items-center gap-1.5 rounded-lg px-2 py-1.5 transition-colors active:bg-navy-800 sm:hover:bg-navy-800"
@@ -311,18 +323,19 @@ export function VotingPage({ shareCode }: VotingPageProps) {
           />
         </div>
 
-        {/* Progress Dots - scrollable on mobile */}
-        <div className="custom-scrollbar mt-3 flex justify-start gap-2 overflow-x-auto pb-1 sm:mt-4 sm:justify-center sm:gap-1.5 sm:overflow-visible">
+        {/* Progress Dots - wrap to new lines */}
+        <div className="mt-3 flex flex-wrap justify-center gap-2 sm:mt-4 sm:gap-1.5">
           {awards.map((award, i) => (
             <button
               key={award._id}
               onClick={() => setCurrentAwardIndex(i)}
-              className={`h-2.5 w-2.5 flex-shrink-0 rounded-full transition-all duration-300 sm:h-2 sm:w-2 ${i === currentAwardIndex
-                ? "scale-125 bg-gold-400"
-                : votedAwards.has(award._id)
-                  ? "bg-emerald-500"
-                  : "active:bg-navy-500 sm:hover:bg-navy-500 bg-navy-600"
-                }`}
+              className={`h-2.5 w-2.5 rounded-full transition-all duration-300 sm:h-2 sm:w-2 ${
+                i === currentAwardIndex
+                  ? "scale-125 bg-gold-400"
+                  : votedAwards.has(award._id)
+                    ? "bg-emerald-500"
+                    : "active:bg-navy-500 sm:hover:bg-navy-500 bg-navy-600"
+              }`}
             />
           ))}
         </div>
@@ -338,34 +351,51 @@ export function VotingPage({ shareCode }: VotingPageProps) {
 
         {/* Nominee Options */}
         <div className="grid gap-2 sm:gap-3">
-          {currentNominees.map((friend) => (
-            <button
-              key={friend._id}
-              onClick={() => handleVote(friend._id)}
-              disabled={hasVotedCurrent}
-              className={`group flex w-full items-center justify-center gap-2.5 rounded-xl p-3 text-sm font-medium transition-all duration-200 sm:gap-3 sm:p-4 sm:text-base ${hasVotedCurrent
-                ? "cursor-not-allowed bg-navy-800/50 text-slate-500"
-                : "border border-navy-600 bg-navy-800/80 text-slate-200 active:scale-[0.98] active:bg-gold-500/10 sm:hover:scale-[1.02] sm:hover:border-gold-400/30 sm:hover:bg-gradient-to-r sm:hover:from-gold-500/20 sm:hover:to-amber-500/20 sm:hover:text-white sm:hover:shadow-lg sm:hover:shadow-gold-500/10"
-                }`}
-            >
-              {/* Avatar */}
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-gold-500/30 to-amber-500/30 transition-all group-hover:from-gold-500/50 group-hover:to-amber-500/50 sm:h-10 sm:w-10">
-                {friend.imageUrl ? (
-                  <img
-                    src={friend.imageUrl}
-                    alt={friend.name}
-                    className="h-full w-full rounded-full object-cover"
-                  />
-                ) : (
-                  <span className="text-xs font-semibold text-gold-400 sm:text-sm">
-                    {friend.name.charAt(0).toUpperCase()}
-                  </span>
-                )}
-              </div>
+          {currentNominees.map((friend) => {
+            const isSelected = selectedVotes[currentAward._id] === friend._id;
 
-              <span className="truncate">{friend.name}</span>
-            </button>
-          ))}
+            return (
+              <button
+                key={friend._id}
+                onClick={() => handleVote(friend._id)}
+                disabled={hasVotedCurrent}
+                className={`group flex w-full items-center justify-center gap-2.5 rounded-xl p-3 text-sm font-medium transition-all duration-200 sm:gap-3 sm:p-4 sm:text-base ${
+                  isSelected
+                    ? "scale-[1.02] border-2 border-emerald-400 bg-gradient-to-r from-emerald-500/20 to-green-500/20 text-white shadow-lg shadow-emerald-500/20"
+                    : hasVotedCurrent
+                      ? "cursor-not-allowed border border-navy-700 bg-navy-800/50 text-slate-500"
+                      : "border border-navy-600 bg-navy-800/80 text-slate-200 active:scale-[0.98] active:bg-gold-500/10 sm:hover:scale-[1.02] sm:hover:border-gold-400/30 sm:hover:bg-gradient-to-r sm:hover:from-gold-500/20 sm:hover:to-amber-500/20 sm:hover:text-white sm:hover:shadow-lg sm:hover:shadow-gold-500/10"
+                }`}
+              >
+                {/* Avatar */}
+                <div
+                  className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full transition-all sm:h-10 sm:w-10 ${
+                    isSelected
+                      ? "bg-gradient-to-br from-emerald-500/50 to-green-500/50"
+                      : "bg-gradient-to-br from-gold-500/30 to-amber-500/30 group-hover:from-gold-500/50 group-hover:to-amber-500/50"
+                  }`}
+                >
+                  {friend.imageUrl ? (
+                    <img
+                      src={friend.imageUrl}
+                      alt={friend.name}
+                      className="h-full w-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <span
+                      className={`text-xs font-semibold sm:text-sm ${isSelected ? "text-emerald-300" : "text-gold-400"}`}
+                    >
+                      {friend.name.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+
+                <span className="truncate">{friend.name}</span>
+
+                {isSelected && <Check className="ml-auto h-5 w-5 flex-shrink-0 text-emerald-400" />}
+              </button>
+            );
+          })}
         </div>
 
         {currentNominees.length === 0 && (

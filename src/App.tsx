@@ -110,6 +110,7 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/host" element={<ProtectedHostPage />} />
+        <Route path="/host/:lobbyId" element={<ProtectedManageLobbyPage />} />
         <Route path="/vote/:shareCode" element={<VoteRoute />} />
         <Route path="/present/:lobbyId" element={<PresentRoute />} />
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -135,6 +136,31 @@ function ProtectedHostPage() {
   }
 
   return <HostPage />;
+}
+
+// Protected route wrapper for managing a specific lobby
+function ProtectedManageLobbyPage() {
+  const { isAuthenticated, isLoading } = useConvexAuth();
+  const { lobbyId } = useParams<{ lobbyId: string }>();
+  const navigate = useNavigate();
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <div className="spinner" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  if (!lobbyId) {
+    return <Navigate to="/host" replace />;
+  }
+
+  return <ManageLobbyPage lobbyId={lobbyId} />;
 }
 
 // Vote route - extracts shareCode from URL
@@ -323,14 +349,8 @@ function SignInPage() {
   );
 }
 
-// Host Page - Lobby Dashboard
+// Host Page - Lobby List
 function HostPage() {
-  const navigate = useNavigate();
-
-  const handleViewPresentation = (lobbyId: string) => {
-    navigate(`/present/${lobbyId}`);
-  };
-
   return (
     <div>
       <Link to="/" className="btn-ghost mx-auto mb-6 flex w-fit max-w-5xl items-center gap-2">
@@ -338,7 +358,26 @@ function HostPage() {
         Back to Home
       </Link>
 
-      <LobbyDashboard onViewPresentation={handleViewPresentation} />
+      <LobbyDashboard />
+    </div>
+  );
+}
+
+// Manage Lobby Page
+function ManageLobbyPage({ lobbyId }: { lobbyId: string }) {
+  const navigate = useNavigate();
+
+  return (
+    <div>
+      <Link to="/host" className="btn-ghost mx-auto mb-6 flex w-fit max-w-5xl items-center gap-2">
+        <ChevronLeft className="h-4 w-4" />
+        Back to Lobbies
+      </Link>
+
+      <LobbyDashboard
+        lobbyId={lobbyId}
+        onNavigateToPresentation={(id) => navigate(`/present/${id}`)}
+      />
     </div>
   );
 }
