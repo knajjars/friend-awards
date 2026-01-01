@@ -37,8 +37,8 @@ export const createLobby = mutation({
       shareCode,
       creatorId: userId,
       isVotingOpen: false,
-      currentSlide: 0,
       isPresentationMode: false,
+      isPresentationFinished: false,
     });
 
     return { lobbyId, shareCode };
@@ -120,15 +120,14 @@ export const startPresentation = mutation({
     await ctx.db.patch(args.lobbyId, {
       isPresentationMode: true,
       isVotingOpen: false,
-      currentSlide: 0,
+      isPresentationFinished: false, // Reset when starting a new presentation
     });
   },
 });
 
-export const updateSlide = mutation({
+export const finishPresentation = mutation({
   args: {
     lobbyId: v.id("lobbies"),
-    slide: v.number(),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -143,7 +142,7 @@ export const updateSlide = mutation({
     }
 
     await ctx.db.patch(args.lobbyId, {
-      currentSlide: args.slide,
+      isPresentationFinished: true,
     });
     return null;
   },

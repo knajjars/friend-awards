@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Id } from "../../convex/_generated/dataModel";
@@ -8,23 +8,37 @@ import { ArrowLeft, ChevronLeft, ChevronRight, Star } from "lucide-react";
 
 interface PresentationModeProps {
   lobbyId: string;
+  isHost?: boolean; // If true, shows "Exit" button to host dashboard. Defaults to true.
   onBack?: () => void; // Deprecated: use React Router navigation instead
 }
 
-export function PresentationMode({ lobbyId }: PresentationModeProps) {
+export function PresentationMode({ lobbyId, isHost = true }: PresentationModeProps) {
   const navigate = useNavigate();
 
   const lobby = useQuery(api.lobbies.getLobby, { lobbyId: lobbyId as Id<"lobbies"> });
   const voteResults = useQuery(api.votes.getVoteResults, { lobbyId: lobbyId as Id<"lobbies"> });
-  const updateSlide = useMutation(api.lobbies.updateSlide);
+  const finishPresentation = useMutation(api.lobbies.finishPresentation);
+
+  // Local state for slide navigation - each user controls their own view
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const hasFinishedRef = useRef(false);
 
   const awards = voteResults?.awards || [];
-  const currentSlide = lobby?.currentSlide || 0;
 
   // Calculate total slides: 2 per award (question + result)
   const totalSlides = awards.length * 2;
   const currentAwardIndex = Math.floor(currentSlide / 2);
   const isResultSlide = currentSlide % 2 === 1;
+  const isLastSlide = currentSlide === totalSlides - 1;
+
+  // When host reaches the last slide, mark presentation as finished
+  useEffect(() => {
+    if (isHost && isLastSlide && totalSlides > 0 && !hasFinishedRef.current) {
+      hasFinishedRef.current = true;
+      console.log("Finishing presentation");
+      finishPresentation({ lobbyId: lobbyId as Id<"lobbies"> });
+    }
+  }, [isHost, isLastSlide, totalSlides, lobbyId, finishPresentation]);
 
   useEffect(() => {
     if (isResultSlide) {
@@ -121,23 +135,27 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
     }
   }, [isResultSlide, currentSlide]);
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (currentSlide < totalSlides - 1) {
-      await updateSlide({ lobbyId: lobbyId as Id<"lobbies">, slide: currentSlide + 1 });
+      setCurrentSlide(currentSlide + 1);
     }
   };
 
-  const handlePrevious = async () => {
+  const handlePrevious = () => {
     if (currentSlide > 0) {
-      await updateSlide({ lobbyId: lobbyId as Id<"lobbies">, slide: currentSlide - 1 });
+      setCurrentSlide(currentSlide - 1);
     }
   };
 
   const handleExit = () => {
-    navigate("/host");
+    if (isHost) {
+      navigate("/host");
+    } else {
+      navigate(-1); // Go back to previous page (voting page)
+    }
   };
 
-  // Keyboard navigation
+  // Keyboard navigation - available for everyone
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === " ") {
@@ -221,7 +239,7 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
           className="btn-ghost flex items-center gap-1.5 px-2 py-1.5 text-sm sm:gap-2 sm:px-3 sm:py-2 sm:text-base"
         >
           <ArrowLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-          <span className="hidden sm:inline">Exit</span>
+          <span className="hidden sm:inline">{isHost ? "Exit" : "Back"}</span>
         </button>
 
         <h1 className="text-gold-gradient absolute left-1/2 hidden -translate-x-1/2 font-display text-base font-bold sm:block sm:text-lg md:text-xl lg:text-2xl">
@@ -384,45 +402,58 @@ export function PresentationMode({ lobbyId }: PresentationModeProps) {
       </div>
 
       {/* Navigation - fixed at bottom */}
-      <div className="relative z-10 flex flex-shrink-0 items-center justify-between gap-2 px-3 py-2 sm:gap-3 sm:px-4 sm:py-3 md:px-6 md:py-4">
-        <button
-          onClick={handlePrevious}
-          disabled={currentSlide === 0}
-          className="btn-secondary flex h-10 items-center gap-1 px-3 text-sm sm:h-11 sm:gap-1.5 sm:px-4 sm:text-base"
-        >
-          <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
-          <span className="hidden xs:inline">Back</span>
-        </button>
+      <div className="relative z-10 flex flex-shrink-0 flex-col gap-2 px-3 py-2 sm:px-4 sm:py-3 md:px-6 md:py-4">
+        {/* Progress dots - wrapped into rows */}
+        {totalSlides <= 20 ? (
+          <div className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+            {[...Array(totalSlides)].map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrentSlide(i)}
+                className={`h-2 w-2 flex-shrink-0 rounded-full transition-all duration-300 sm:h-2.5 sm:w-2.5 ${
+                  i === currentSlide
+                    ? "scale-125 bg-gold-400"
+                    : i < currentSlide
+                      ? "bg-gold-400/50"
+                      : "active:bg-navy-500 sm:hover:bg-navy-500 bg-navy-600"
+                }`}
+              />
+            ))}
+          </div>
+        ) : (
+          /* Compact progress bar for many slides */
+          <div className="mx-auto w-full max-w-xs">
+            <div className="h-1.5 overflow-hidden rounded-full bg-navy-800">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-gold-500 to-amber-400 transition-all duration-300"
+                style={{ width: `${((currentSlide + 1) / totalSlides) * 100}%` }}
+              />
+            </div>
+          </div>
+        )}
 
-        {/* Progress dots - scrollable */}
-        <div className="custom-scrollbar flex max-w-[35vw] gap-1.5 overflow-x-auto px-1 sm:max-w-[50vw] sm:gap-2 sm:px-2 md:max-w-xs">
-          {[...Array(totalSlides)].map((_, i) => (
-            <button
-              key={i}
-              onClick={async () => {
-                await updateSlide({ lobbyId: lobbyId as Id<"lobbies">, slide: i });
-              }}
-              className={`h-2 w-2 flex-shrink-0 rounded-full transition-all duration-300 sm:h-2.5 sm:w-2.5 ${
-                i === currentSlide
-                  ? "scale-125 bg-gold-400"
-                  : i < currentSlide
-                    ? "bg-gold-400/50"
-                    : "active:bg-navy-500 sm:hover:bg-navy-500 bg-navy-600"
-              }`}
-            />
-          ))}
+        {/* Navigation buttons */}
+        <div className="flex items-center justify-between gap-2">
+          <button
+            onClick={handlePrevious}
+            disabled={currentSlide === 0}
+            className="btn-secondary flex h-10 items-center gap-1 px-3 text-sm sm:h-11 sm:gap-1.5 sm:px-4 sm:text-base"
+          >
+            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="hidden xs:inline">Back</span>
+          </button>
+
+          <button
+            onClick={handleNext}
+            disabled={currentSlide >= totalSlides - 1}
+            className="btn-primary flex h-10 items-center gap-1 px-3 text-sm sm:h-11 sm:gap-1.5 sm:px-4 sm:text-base"
+          >
+            <span className="hidden xs:inline">
+              {currentSlide >= totalSlides - 1 ? "Done" : "Next"}
+            </span>
+            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
+          </button>
         </div>
-
-        <button
-          onClick={handleNext}
-          disabled={currentSlide >= totalSlides - 1}
-          className="btn-primary flex h-10 items-center gap-1 px-3 text-sm sm:h-11 sm:gap-1.5 sm:px-4 sm:text-base"
-        >
-          <span className="hidden xs:inline">
-            {currentSlide >= totalSlides - 1 ? "Done" : "Next"}
-          </span>
-          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
-        </button>
       </div>
 
       {/* Keyboard hints - desktop only */}

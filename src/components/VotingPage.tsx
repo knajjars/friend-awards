@@ -4,6 +4,7 @@ import { api } from "../../convex/_generated/api";
 import { toast } from "sonner";
 import { Link, useNavigate } from "react-router-dom";
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
+import { PresentationMode } from "./PresentationMode";
 
 interface VotingPageProps {
   shareCode: string;
@@ -142,6 +143,38 @@ export function VotingPage({ shareCode }: VotingPageProps) {
     );
   }
 
+  // Show presentation viewer when host has finished presenting
+  if (lobby.isPresentationMode && lobby.isPresentationFinished) {
+    return <PresentationMode lobbyId={lobby._id} isHost={false} />;
+  }
+
+  // Show waiting screen when presentation is in progress but not finished
+  if (lobby.isPresentationMode && !lobby.isPresentationFinished) {
+    return (
+      <div className="mx-auto mt-8 max-w-md px-4 sm:mt-12 sm:px-6">
+        <div className="glass-card p-6 text-center sm:p-8">
+          <div className="mb-4 text-5xl sm:text-6xl">🎬</div>
+          <h2 className="mb-2 font-display text-xl font-semibold text-white sm:text-2xl">
+            {lobby.name}
+          </h2>
+          <p className="mb-4 text-sm text-slate-400 sm:text-base">
+            The host is presenting the results live!
+          </p>
+          <div className="mb-6 flex items-center justify-center gap-2 text-xs text-gold-400 sm:text-sm">
+            <span className="inline-flex h-2 w-2 animate-pulse rounded-full bg-gold-400" />
+            <span>Presentation in progress...</span>
+          </div>
+          <p className="mb-6 text-xs text-slate-500 sm:text-sm">
+            You'll be able to view the results once the host finishes.
+          </p>
+          <Link to="/" className="btn-secondary inline-block px-6 py-3">
+            Back to Home
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   if (!lobby.isVotingOpen) {
     return (
       <div className="mx-auto mt-8 max-w-md px-4 sm:mt-12 sm:px-6">
@@ -151,9 +184,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
             {lobby.name}
           </h2>
           <p className="mb-6 text-sm text-slate-400 sm:text-base">
-            {lobby.isPresentationMode
-              ? "This lobby is revealing winners! Check back later for the next round."
-              : "Voting hasn't started yet. The host will open voting soon!"}
+            Voting hasn't started yet. The host will open voting soon!
           </p>
           <Link to="/" className="btn-secondary inline-block px-6 py-3">
             Back to Home
@@ -450,7 +481,7 @@ export function VotingPage({ shareCode }: VotingPageProps) {
       <div className="fixed bottom-0 left-0 right-0 z-20 flex justify-between gap-3 border-t border-navy-800/50 bg-navy-950/95 px-4 py-3 backdrop-blur-lg sm:relative sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
         <button
           onClick={() => setCurrentAwardIndex(Math.max(0, currentAwardIndex - 1))}
-          disabled={currentAwardIndex === 0}
+          disabled={currentAwardIndex === 0 || hasVotedCurrent}
           className="btn-secondary flex flex-1 items-center justify-center gap-1.5 py-2.5 text-sm sm:flex-none sm:gap-2 sm:py-3 sm:text-base"
         >
           <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -459,9 +490,10 @@ export function VotingPage({ shareCode }: VotingPageProps) {
 
         <button
           onClick={() => setCurrentAwardIndex(Math.min(awards.length, currentAwardIndex + 1))}
+          disabled={hasVotedCurrent}
           className="btn-primary flex flex-1 items-center justify-center gap-1.5 py-2.5 text-sm sm:flex-none sm:gap-2 sm:py-3 sm:text-base"
         >
-          <span>{isLastAward ? "Finish" : "Next"}</span>
+          <span>{isLastAward ? "Finish" : "Skip"}</span>
           <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
         </button>
       </div>

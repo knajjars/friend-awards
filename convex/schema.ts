@@ -7,9 +7,10 @@ const applicationTables = {
     name: v.string(),
     shareCode: v.string(),
     creatorId: v.optional(v.id("users")),
+    currentSlide: v.optional(v.number()), // For presentation mode
     isVotingOpen: v.boolean(),
-    currentSlide: v.number(), // For presentation mode
     isPresentationMode: v.boolean(),
+    isPresentationFinished: v.optional(v.boolean()), // True when host finishes presenting - allows voters to view
   }).index("by_share_code", ["shareCode"]),
 
   friends: defineTable({
