@@ -323,7 +323,7 @@ function ShareCodeButton({ shareCode, lobbyName }: { shareCode: string; lobbyNam
       try {
         await navigator.share({
           title: `Vote on ${lobbyName}`,
-          text: `Join the voting for "${lobbyName}" friend awards!`,
+          text: `Join the voting for "${lobbyName}"`,
           url: shareUrl,
         });
         return;
@@ -594,13 +594,12 @@ function LobbyManager({
           <button
             onClick={handleToggleVoting}
             disabled={!canStartVoting}
-            className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-6 sm:text-base ${
-              lobby.isVotingOpen
-                ? "border border-red-500/30 bg-red-500/20 text-red-400 active:bg-red-500/30"
-                : canStartVoting
-                  ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-400 active:bg-emerald-500/30"
-                  : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
-            }`}
+            className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-6 sm:text-base ${lobby.isVotingOpen
+              ? "border border-red-500/30 bg-red-500/20 text-red-400 active:bg-red-500/30"
+              : canStartVoting
+                ? "border border-emerald-500/30 bg-emerald-500/20 text-emerald-400 active:bg-emerald-500/30"
+                : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
+              }`}
           >
             {lobby.isVotingOpen ? "⏹ Close Voting" : "▶ Open Voting"}
           </button>
@@ -608,11 +607,10 @@ function LobbyManager({
           <button
             onClick={handleStartPresentation}
             disabled={!canStartPresentation}
-            className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-6 sm:text-base ${
-              canStartPresentation
-                ? "border border-sky-500/30 bg-sky-500/20 text-sky-400 active:bg-sky-500/30"
-                : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
-            }`}
+            className={`flex-1 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 sm:flex-none sm:px-6 sm:text-base ${canStartPresentation
+              ? "border border-sky-500/30 bg-sky-500/20 text-sky-400 active:bg-sky-500/30"
+              : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
+              }`}
           >
             🎬 Present Results
           </button>
@@ -620,11 +618,10 @@ function LobbyManager({
           <button
             onClick={() => setShowResetConfirm(true)}
             disabled={!hasVotes}
-            className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 sm:px-5 sm:text-base ${
-              hasVotes
-                ? "border border-orange-500/30 bg-orange-500/20 text-orange-400 active:bg-orange-500/30"
-                : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
-            }`}
+            className={`flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-300 sm:px-5 sm:text-base ${hasVotes
+              ? "border border-orange-500/30 bg-orange-500/20 text-orange-400 active:bg-orange-500/30"
+              : "cursor-not-allowed border border-navy-600 bg-navy-700/50 text-slate-500"
+              }`}
             title="Reset all votes"
           >
             <RotateCcw className="h-4 w-4" />
@@ -836,11 +833,10 @@ function AwardItem({
 
   return (
     <div
-      className={`overflow-hidden rounded-xl border transition-colors ${
-        isEditing
-          ? "border-gold-500/30 bg-navy-800/50"
-          : "border-navy-700/50 bg-navy-900/50 hover:border-navy-600"
-      }`}
+      className={`overflow-hidden rounded-xl border transition-colors ${isEditing
+        ? "border-gold-500/30 bg-navy-800/50"
+        : "border-navy-700/50 bg-navy-900/50 hover:border-navy-600"
+        }`}
     >
       {/* Award Header */}
       <div className="group p-3 sm:p-4">
@@ -903,13 +899,12 @@ function AwardItem({
               <>
                 <button
                   onClick={() => setIsExpanded(!isExpanded)}
-                  className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all active:scale-90 sm:h-9 sm:w-9 ${
-                    hasCustomNominees
-                      ? "bg-gold-500/15 text-gold-400 hover:bg-gold-500/25 active:bg-gold-500/35"
-                      : isExpanded
-                        ? "bg-navy-700 text-slate-300"
-                        : "text-slate-500 hover:bg-navy-700 hover:text-slate-300 active:bg-navy-600"
-                  }`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-lg transition-all active:scale-90 sm:h-9 sm:w-9 ${hasCustomNominees
+                    ? "bg-gold-500/15 text-gold-400 hover:bg-gold-500/25 active:bg-gold-500/35"
+                    : isExpanded
+                      ? "bg-navy-700 text-slate-300"
+                      : "text-slate-500 hover:bg-navy-700 hover:text-slate-300 active:bg-navy-600"
+                    }`}
                   title="Select nominees"
                 >
                   <Users className="h-5 w-5 sm:h-4 sm:w-4" />
@@ -979,11 +974,10 @@ function AwardItem({
                 <button
                   key={friend._id}
                   onClick={() => toggleNominee(friend._id)}
-                  className={`rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95 sm:py-1.5 ${
-                    isSelected
-                      ? "border border-gold-500/40 bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 active:bg-gold-500/40"
-                      : "active:border-navy-500 border border-navy-700 bg-navy-800 text-slate-500 hover:border-navy-600 hover:text-slate-400 active:bg-navy-700"
-                  }`}
+                  className={`rounded-lg px-3 py-2 text-sm font-medium transition-all active:scale-95 sm:py-1.5 ${isSelected
+                    ? "border border-gold-500/40 bg-gold-500/20 text-gold-400 hover:bg-gold-500/30 active:bg-gold-500/40"
+                    : "active:border-navy-500 border border-navy-700 bg-navy-800 text-slate-500 hover:border-navy-600 hover:text-slate-400 active:bg-navy-700"
+                    }`}
                 >
                   {friend.name}
                 </button>

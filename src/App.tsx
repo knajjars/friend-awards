@@ -65,7 +65,7 @@ function Layout({ children }: { children: React.ReactNode }) {
           <Link to="/" className="group flex items-center gap-2 sm:gap-3">
             <span className="trophy-animate text-2xl sm:text-3xl">🏆</span>
             <span className="text-gold-gradient font-display text-lg sm:text-2xl">
-              Friend Awards
+              Petty Honors
             </span>
           </Link>
 
@@ -212,14 +212,9 @@ function HomePage() {
     <div className="mx-auto max-w-4xl">
       {/* Hero Section */}
       <div className="mb-10 text-center sm:mb-14">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-gold-500/20 bg-gold-500/10 px-4 py-2 text-sm font-medium text-gold-400 sm:mb-8 sm:px-5 sm:py-2.5 sm:text-base">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-gold-400" />
-          New Year's Edition
-        </div>
-
         <h1 className="mb-4 font-display text-4xl font-bold leading-none tracking-tight sm:mb-6 sm:text-6xl md:text-7xl lg:text-8xl">
           <span className="text-white">The</span>{" "}
-          <span className="text-gold-gradient">Friend Awards</span>
+          <span className="text-gold-gradient">Petty Honors</span>
         </h1>
 
         <p className="mx-auto max-w-2xl px-2 text-base font-light leading-relaxed text-slate-400 sm:text-xl md:text-2xl">
