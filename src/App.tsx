@@ -591,7 +591,7 @@ function ManageLobbyPage({ lobbyId }: { lobbyId: string }) {
     <div>
       <Link to="/host" className="btn-ghost mx-auto mb-6 flex w-fit max-w-5xl items-center gap-2">
         <ChevronLeft className="h-4 w-4" />
-        Back to Lobbies
+        Back to Lobby
       </Link>
 
       <LobbyDashboard

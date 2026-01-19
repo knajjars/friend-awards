@@ -17,7 +17,11 @@ import {
   Share2,
   RotateCcw,
   Gamepad,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
+import awardTemplates from "../data/awardTemplates.json";
 
 interface LobbyDashboardProps {
   lobbyId?: string;
@@ -469,6 +473,7 @@ function LobbyManager({
   const generateUploadUrl = useMutation(api.friends.generateUploadUrl);
   const updateFriendImage = useMutation(api.friends.updateFriendImage);
   const addAward = useMutation(api.awards.addAward);
+  const addAwardsBulk = useMutation(api.awards.addAwardsBulk);
   const removeAward = useMutation(api.awards.removeAward);
   const updateNominees = useMutation(api.awards.updateNominees);
   const updateAward = useMutation(api.awards.updateAward);
@@ -732,6 +737,31 @@ function LobbyManager({
             </h4>
           </div>
 
+          {/* Award Templates */}
+          <AwardTemplates
+            existingAwards={awards.map((a) => a.question)}
+            onAddAward={async (question: string) => {
+              try {
+                await addAward({ lobbyId, question });
+                toast.success("Award added!");
+              } catch {
+                toast.error("Failed to add award");
+              }
+            }}
+            onAddMultipleAwards={async (questions: string[]) => {
+              try {
+                const result = await addAwardsBulk({ lobbyId, questions });
+                if (result.added > 0) {
+                  toast.success(`Added ${result.added} award${result.added !== 1 ? "s" : ""}!`);
+                } else {
+                  toast.info("All awards from this category are already added!");
+                }
+              } catch {
+                toast.error("Failed to add awards");
+              }
+            }}
+          />
+
           <form onSubmit={handleAddAward} className="mb-4">
             <div className="flex gap-2">
               <input
@@ -773,6 +803,170 @@ function LobbyManager({
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Award Templates Component
+function AwardTemplates({
+  existingAwards,
+  onAddAward,
+  onAddMultipleAwards,
+}: {
+  existingAwards: string[];
+  onAddAward: (question: string) => Promise<void>;
+  onAddMultipleAwards: (questions: string[]) => Promise<void>;
+}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [addingAwards, setAddingAwards] = useState<Set<string>>(new Set());
+
+  const handleAddAward = async (award: string) => {
+    if (existingAwards.includes(award) || addingAwards.has(award)) return;
+    
+    setAddingAwards((prev) => new Set(prev).add(award));
+    try {
+      await onAddAward(award);
+    } finally {
+      setAddingAwards((prev) => {
+        const next = new Set(prev);
+        next.delete(award);
+        return next;
+      });
+    }
+  };
+
+  const handleAddCategory = async (categoryName: string) => {
+    const category = awardTemplates.categories.find((c) => c.name === categoryName);
+    if (!category) return;
+
+    const newAwards = category.awards.filter((a) => !existingAwards.includes(a));
+    if (newAwards.length === 0) {
+      toast.info("All awards from this category are already added!");
+      return;
+    }
+
+    await onAddMultipleAwards(newAwards);
+  };
+
+  return (
+    <div className="mb-4">
+      {/* Toggle Button */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="group mb-3 flex w-full items-center justify-between rounded-xl border border-navy-600 bg-navy-800/50 px-4 py-3 text-left transition-all hover:border-gold-500/30 hover:bg-navy-800"
+      >
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-gold-400" />
+          <span className="text-sm font-medium text-slate-300">Award Templates</span>
+          <span className="rounded-full bg-gold-500/20 px-2 py-0.5 text-xs text-gold-400">
+            {awardTemplates.categories.length} categories
+          </span>
+        </div>
+        {isExpanded ? (
+          <ChevronUp className="h-4 w-4 text-slate-500 transition-colors group-hover:text-slate-300" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-slate-500 transition-colors group-hover:text-slate-300" />
+        )}
+      </button>
+
+      {/* Templates Panel */}
+      {isExpanded && (
+        <div className="animate-in fade-in slide-in-from-top-2 mb-4 overflow-hidden rounded-xl border border-navy-600 bg-navy-900/50 duration-200">
+          <div className="custom-scrollbar max-h-80 overflow-y-auto p-3">
+            <div className="space-y-2">
+              {awardTemplates.categories.map((category) => {
+                const isOpen = expandedCategory === category.name;
+                const availableCount = category.awards.filter(
+                  (a) => !existingAwards.includes(a)
+                ).length;
+
+                return (
+                  <div
+                    key={category.name}
+                    className="overflow-hidden rounded-lg border border-navy-700/50 bg-navy-800/30"
+                  >
+                    {/* Category Header */}
+                    <button
+                      onClick={() => setExpandedCategory(isOpen ? null : category.name)}
+                      className="group flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-navy-800/50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-xl">{category.emoji}</span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-white">{category.name}</span>
+                            {availableCount > 0 && (
+                              <span className="rounded-full bg-navy-700 px-1.5 py-0.5 text-[10px] text-slate-400">
+                                {availableCount} available
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-500">{category.description}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {availableCount > 0 && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddCategory(category.name);
+                            }}
+                            className="rounded-lg bg-gold-500/20 px-2.5 py-1.5 text-xs font-medium text-gold-400 transition-all hover:bg-gold-500/30 active:scale-95"
+                          >
+                            Add All
+                          </button>
+                        )}
+                        {isOpen ? (
+                          <ChevronUp className="h-4 w-4 text-slate-500" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-slate-500" />
+                        )}
+                      </div>
+                    </button>
+
+                    {/* Awards List */}
+                    {isOpen && (
+                      <div className="border-t border-navy-700/50 bg-navy-950/30 p-3">
+                        <div className="flex flex-wrap gap-2">
+                          {category.awards.map((award) => {
+                            const isAdded = existingAwards.includes(award);
+                            const isAdding = addingAwards.has(award);
+
+                            return (
+                              <button
+                                key={award}
+                                onClick={() => handleAddAward(award)}
+                                disabled={isAdded || isAdding}
+                                className={`group/award flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm transition-all ${
+                                  isAdded
+                                    ? "cursor-not-allowed border border-emerald-500/30 bg-emerald-500/10 text-emerald-400/70"
+                                    : isAdding
+                                      ? "cursor-wait border border-gold-500/30 bg-gold-500/10 text-gold-400"
+                                      : "border border-navy-600 bg-navy-800 text-slate-300 hover:border-gold-500/30 hover:bg-gold-500/10 hover:text-gold-400 active:scale-95"
+                                }`}
+                              >
+                                {isAdded ? (
+                                  <Check className="h-3 w-3" />
+                                ) : isAdding ? (
+                                  <div className="h-3 w-3 animate-spin rounded-full border border-gold-400/30 border-t-gold-400" />
+                                ) : (
+                                  <Plus className="h-3 w-3 opacity-0 transition-opacity group-hover/award:opacity-100" />
+                                )}
+                                <span>{award}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

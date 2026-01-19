@@ -31,6 +31,63 @@ export const addAward = mutation({
   },
 });
 
+export const addAwardsBulk = mutation({
+  args: {
+    lobbyId: v.id("lobbies"),
+    questions: v.array(v.string()),
+  },
+  returns: v.object({
+    added: v.number(),
+    skipped: v.number(),
+  }),
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) {
+      throw new Error("Must be logged in");
+    }
+
+    const lobby = await ctx.db.get(args.lobbyId);
+    if (!lobby || lobby.creatorId !== userId) {
+      throw new Error("Not authorized");
+    }
+
+    // Get existing awards to determine order and avoid duplicates
+    const existingAwards = await ctx.db
+      .query("awards")
+      .withIndex("by_lobby", (q) => q.eq("lobbyId", args.lobbyId))
+      .collect();
+
+    const existingQuestions = new Set(
+      existingAwards.map((a) => a.question.toLowerCase().trim())
+    );
+
+    let currentOrder = existingAwards.length;
+    let added = 0;
+    let skipped = 0;
+
+    for (const question of args.questions) {
+      const trimmedQuestion = question.trim();
+      // Skip empty questions or duplicates
+      if (!trimmedQuestion || existingQuestions.has(trimmedQuestion.toLowerCase())) {
+        skipped++;
+        continue;
+      }
+
+      await ctx.db.insert("awards", {
+        lobbyId: args.lobbyId,
+        question: trimmedQuestion,
+        order: currentOrder,
+      });
+
+      existingQuestions.add(trimmedQuestion.toLowerCase());
+      currentOrder++;
+      added++;
+    }
+
+    return { added, skipped };
+  },
+});
+
 export const getAwards = query({
   args: {
     lobbyId: v.id("lobbies"),

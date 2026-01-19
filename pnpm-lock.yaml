@@ -11,6 +11,9 @@ importers:
       '@convex-dev/auth':
         specifier: ^0.0.80
         version: 0.0.80(@auth/core@0.37.4)(convex@1.31.2(react@19.2.3))(react@19.2.3)
+      '@convex-dev/migrations':
+        specifier: ^0.3.1
+        version: 0.3.1(convex@1.31.2(react@19.2.3))
       '@generouted/react-router':
         specifier: ^1.20.0
         version: 1.20.0(react-router@7.11.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)(vite@6.4.1(@types/node@22.19.3)(jiti@1.21.7))
@@ -216,6 +219,11 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
+
+  '@convex-dev/migrations@0.3.1':
+    resolution: {integrity: sha512-dGiN82vWMN415/AGMcVooDOJk8iTousZahBBs27uA03pL74Uo3ksucUW3CiCfPx75rv+x9UnenEakimQYYNIrA==}
+    peerDependencies:
+      convex: ^1.24.8
 
   '@emnapi/core@0.45.0':
     resolution: {integrity: sha512-DPWjcUDQkCeEM4VnljEOEcXdAD7pp8zSZsgOujk/LGIwCXWbXJngin+MO4zbH429lzeC3WbYLGjE2MaUOwzpyw==}
@@ -2543,6 +2551,10 @@ snapshots:
       server-only: 0.0.1
     optionalDependencies:
       react: 19.2.3
+
+  '@convex-dev/migrations@0.3.1(convex@1.31.2(react@19.2.3))':
+    dependencies:
+      convex: 1.31.2(react@19.2.3)
 
   '@emnapi/core@0.45.0':
     dependencies:

@@ -1,0 +1,161 @@
+{
+  "categories": [
+    {
+      "name": "Classic Petty",
+      "emoji": "🎭",
+      "description": "The essentials for any friend group",
+      "awards": [
+        "Most Likely to Be Late",
+        "Most Dramatic",
+        "Biggest Gossip",
+        "Worst Texter",
+        "Most Likely to Ghost",
+        "Main Character Energy",
+        "Most Likely to Start Drama Then Leave",
+        "Most Unbothered",
+        "Most Likely to Say 'I Told You So'"
+      ]
+    },
+    {
+      "name": "Party Animals",
+      "emoji": "🎉",
+      "description": "For the ones who know how to have fun",
+      "awards": [
+        "Life of the Party",
+        "First to Leave",
+        "Last to Leave",
+        "Most Likely to Lose Their Phone",
+        "Best Dance Moves",
+        "Worst Dance Moves",
+        "Most Likely to Order Too Much Food",
+        "Designated Driver Award",
+        "Most Likely to Start a Karaoke Session"
+      ]
+    },
+    {
+      "name": "Food & Drink",
+      "emoji": "🍕",
+      "description": "For the foodies in the group",
+      "awards": [
+        "Pickiest Eater",
+        "Biggest Foodie",
+        "Most Likely to Steal Your Fries",
+        "Coffee Addict of the Year",
+        "Best Cook",
+        "Most Likely to Burn Water",
+        "Snack Hoarder",
+        "Most Adventurous Eater",
+        "Most Likely to Suggest Brunch"
+      ]
+    },
+    {
+      "name": "Social Media",
+      "emoji": "📱",
+      "description": "For the chronically online",
+      "awards": [
+        "Instagram vs Reality",
+        "Most Likely to Go Viral",
+        "Biggest Oversharer",
+        "Best Selfie Game",
+        "Most Likely to Doom Scroll",
+        "Hot Take Champion",
+        "Most Likely to Screenshot Everything",
+        "Finsta Energy Award",
+        "Most Likely to Live Tweet Everything"
+      ]
+    },
+    {
+      "name": "Relationship Goals",
+      "emoji": "💕",
+      "description": "For the romantics and the chaos",
+      "awards": [
+        "Most Likely to Get Back with Their Ex",
+        "Best Relationship Advice",
+        "Worst Relationship Advice",
+        "Most Likely to Fall in Love at First Sight",
+        "Biggest Flirt",
+        "Most Likely to Third Wheel",
+        "Serial Monogamist",
+        "Hopeless Romantic",
+        "Most Likely to Catch Feelings"
+      ]
+    },
+    {
+      "name": "Work & Money",
+      "emoji": "💼",
+      "description": "For the hustlers and the slackers",
+      "awards": [
+        "Most Likely to Become CEO",
+        "Most Likely to Quit Their Job Dramatically",
+        "Biggest Workaholic",
+        "Best Work-Life Balance",
+        "Most Likely to Win the Lottery and Tell No One",
+        "Always Broke Award",
+        "Most Likely to Expense Everything",
+        "Meeting That Could've Been an Email Champion"
+      ]
+    },
+    {
+      "name": "Travel Crew",
+      "emoji": "✈️",
+      "description": "For the adventurers",
+      "awards": [
+        "Best Travel Buddy",
+        "Most Likely to Miss Their Flight",
+        "Over-Packer Award",
+        "Most Likely to Get Lost",
+        "Best Trip Planner",
+        "Most Spontaneous",
+        "Best At Finding Food Spots",
+        "Most Likely to Befriend a Local"
+      ]
+    },
+    {
+      "name": "Personality Traits",
+      "emoji": "✨",
+      "description": "Celebrating who they really are",
+      "awards": [
+        "Most Likely to Succeed",
+        "Biggest Overthinker",
+        "Most Chaotic Good",
+        "Calmest Under Pressure",
+        "Most Likely to Have a Secret Talent",
+        "Best Listener",
+        "Most Likely to Give Unsolicited Advice",
+        "Most Sarcastic",
+        "Class Clown"
+      ]
+    },
+    {
+      "name": "Group Dynamics",
+      "emoji": "👥",
+      "description": "How they fit in the friend group",
+      "awards": [
+        "Group Mom/Dad",
+        "The Planner",
+        "The Wildcard",
+        "The Voice of Reason",
+        "Most Likely to Cancel Plans",
+        "Always Down for Anything",
+        "The Mediator",
+        "Most Likely to Remember Everyone's Birthday",
+        "Best Hype Person"
+      ]
+    },
+    {
+      "name": "Pop Culture",
+      "emoji": "🎬",
+      "description": "For the entertainment buffs",
+      "awards": [
+        "Best Movie Recommendations",
+        "Worst Movie Recommendations",
+        "Most Likely to Spoil the Ending",
+        "Walking IMDb",
+        "Best Music Taste",
+        "Most Controversial Music Taste",
+        "Reality TV Expert",
+        "Most Likely to Quote Movies in Conversation"
+      ]
+    }
+  ]
+}
